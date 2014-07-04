@@ -5,6 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MScheduler_BusTier.Abstract {
-    class Slot {
+    public interface ISlotFiller {
+
+    }
+
+    public interface ISlot {
+
+    }
+
+    public class Slot {
+
     }
 }
