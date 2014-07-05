@@ -39,8 +39,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstract\Factory.cs" />
     <Compile Include="Abstract\Meeting.cs" />
     <Compile Include="Abstract\Slot.cs" />
+    <Compile Include="Abstract\Template.cs" />
+    <Compile Include="Concrete\MeetingImp.cs" />
     <Compile Include="Concrete\SlotImp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

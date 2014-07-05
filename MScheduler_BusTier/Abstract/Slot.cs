@@ -13,6 +13,7 @@ namespace MScheduler_BusTier.Abstract {
     public interface ISlot {
         Slot.SlotData Data { set; }
         ISlotFiller Filler { get; }
+        string Title { get; }
         string Description { get; }
         int SortNumber { get; }
         bool CanFillSlot { get; }
@@ -30,11 +31,16 @@ namespace MScheduler_BusTier.Abstract {
         }
 
         public enum SlotType {
-            User = 0
+            User = 0,
+            Generic
         }
 
         public ISlotFiller Filler {
             get { return _slotData.Filler; }
+        }
+
+        public string Title {
+            get { return _slotData.Title; }
         }
 
         public string Description {
@@ -60,6 +66,7 @@ namespace MScheduler_BusTier.Abstract {
 
         public class SlotData {
             public ISlotFiller Filler { get; set; }
+            public string Title { get; set; }
             public string Description { get; set; }
             public int SortNumber { get; set; }
         }
@@ -77,6 +84,10 @@ namespace MScheduler_BusTier.Abstract {
 
         public virtual ISlotFiller Filler {
             get { return _slot.Filler; }
+        }
+
+        public virtual string Title {
+            get { return _slot.Title; }
         }
 
         public virtual string Description {
