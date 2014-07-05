@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MScheduler_BusTier.Abstract {
     public interface ISlotFiller {
         int Id { get; }
-        string Description { get; }
+        string Description { get; }        
     }
 
     public interface ISlot {
@@ -15,6 +15,8 @@ namespace MScheduler_BusTier.Abstract {
         ISlotFiller Filler { get; }
         string Description { get; }
         int SortNumber { get; }
+        bool CanFillSlot { get; }
+        string FillSlot(ISlotFiller filler);
     }
 
     public abstract class Slot : ISlot {
@@ -41,6 +43,19 @@ namespace MScheduler_BusTier.Abstract {
 
         public int SortNumber {
             get { return _slotData.SortNumber; }
+        }
+
+        public bool CanFillSlot {
+            get { return true; }
+        }
+
+        public string FillSlot(ISlotFiller filler) {
+            if (this.CanFillSlot) {
+                _slotData.Filler = filler;
+                return "";
+            } else {
+                return "This slot is unavailable";
+            }
         }
 
         public class SlotData {
@@ -70,6 +85,14 @@ namespace MScheduler_BusTier.Abstract {
 
         public virtual int SortNumber {
             get { return _slot.SortNumber; }
+        }
+
+        public virtual bool CanFillSlot {
+            get { return _slot.CanFillSlot; }
+        }
+
+        public virtual string FillSlot(ISlotFiller filler) {
+            return _slot.FillSlot(filler);
         }
     }
 }
