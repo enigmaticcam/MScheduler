@@ -18,7 +18,7 @@ namespace MScheduler_BusTier.Abstract {
         public abstract ITemplate CreateTemplate();
     }
 
-    public abstract class FactoryDecorator() {
+    public abstract class FactoryDecorator {
         private IFactory _factory;
         public FactoryDecorator(IFactory factory) {
             _factory = factory;

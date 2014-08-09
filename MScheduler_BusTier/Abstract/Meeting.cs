@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace MScheduler_BusTier.Abstract {
     public interface IMeeting {
-        public int Id;
-        public string Description;
-        public DateTime Date;
-        public IEnumerable<ISlot> Slots;
+        int Id { get; }
+        string Description { get; }
+        DateTime Date { get; }
+        IEnumerable<ISlot> Slots { get; }
     }
 
     public abstract class Meeting {

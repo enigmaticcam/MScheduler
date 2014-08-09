@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MScheduler_BusTier.Abstract;
 using MScheduler_BusTier.Concrete;
@@ -11,23 +12,45 @@ namespace MScheduler_Tests {
     public class TemplateTests {
 
         [TestMethod]
-        public void TemplateTests_GenerateMeetingSlots() {
+        public void TemplateTests_CarryAllAttributesFromTemplateSlotToSlot() {
 
             // Arrange
+            List<SlotImp> returnSlots = new List<SlotImp>();
+            returnSlots.Add(new SlotImp());
+            returnSlots.Add(new SlotImp());
+
+            int currentSlot = 0;
             Mock<IFactory> factory = new Mock<IFactory>();
-            factory.Setup(f => f.CreateSlot()).Returns(new SlotImp());
+            factory.Setup(f => f.CreateSlot()).Returns(() => returnSlots[currentSlot]).Callback(() => currentSlot++);
 
             List<TemplateSlot> templateSlots = new List<TemplateSlot>();
 
             TemplateSlot templateSlot = new TemplateSlot();
+            templateSlot.Title = "Title1";
             templateSlot.SortNumber = 5;
-            
+            templateSlots.Add(templateSlot);
 
-            Template.ActionGenerateMeetingSlots action = new Template.ActionGenerateMeetingSlots.Builder()
-                .SetFactory(factory.Object)
-                .SetTemplateSlots(null)
-                .Build();
-                
+            templateSlot = new TemplateSlot();
+            templateSlot.Title = "Title2";
+            templateSlot.Id = 2;
+            templateSlot.SortNumber = 3;
+            templateSlots.Add(templateSlot);
+
+            Template.TemplateData data = new Template.TemplateData();
+            data.TemplateSlots = templateSlots;
+
+            Mock<Template> template = new Mock<Template>(factory.Object);
+            template.Object.Data = data;
+
+            // Act
+            List<ISlot> slots = template.Object.GenerateMeetingSlots().OrderBy(s => s.SortNumber).ToList();
+            
+            // Assert
+            Assert.AreEqual(2, slots.Count);
+            Assert.AreEqual(templateSlots[1].Title, slots[0].Title);
+            Assert.AreEqual(templateSlots[0].Title, slots[1].Title);
+            Assert.AreEqual(templateSlots[1].SortNumber, slots[0].SortNumber);
+            Assert.AreEqual(templateSlots[0].SortNumber, slots[1].SortNumber);
         }
     }
 }
