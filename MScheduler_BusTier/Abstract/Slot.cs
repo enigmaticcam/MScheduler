@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MScheduler_BusTier.Abstract {
     public interface ISlotFiller {
-        int Id { get; }
+        int SlotFillerId { get; }
         string Description { get; }        
     }
 
