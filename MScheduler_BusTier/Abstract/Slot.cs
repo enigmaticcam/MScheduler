@@ -14,11 +14,15 @@ namespace MScheduler_BusTier.Abstract {
         Slot.SlotData Data { set; }
         ISlotFiller Filler { get; }
         int Id { get; }
+        int MeetingId { get; }
         string Title { get; }
         string Description { get; }
         int SortNumber { get; }
+        int SlotFillerId { get; }
         bool CanFillSlot { get; }
         string FillSlot(ISlotFiller filler);
+        void LoadFromSource(int id);
+        int SaveToSource();
     }
 
     public abstract class Slot : ISlot {
@@ -44,6 +48,10 @@ namespace MScheduler_BusTier.Abstract {
             get { return _slotData.Id; }
         }
 
+        public int MeetingId {
+            get { return _slotData.MeetingId; }
+        }
+
         public string Title {
             get { return _slotData.Title; }
         }
@@ -54,6 +62,16 @@ namespace MScheduler_BusTier.Abstract {
 
         public int SortNumber {
             get { return _slotData.SortNumber; }
+        }
+
+        public int SlotFillerId {
+            get {
+                if (_slotData.Filler != null) {
+                    return _slotData.Filler.SlotFillerId;
+                } else {
+                    return 0;
+                }
+            }
         }
 
         public bool CanFillSlot {
@@ -69,9 +87,19 @@ namespace MScheduler_BusTier.Abstract {
             }
         }
 
+        public void LoadFromSource(int id) {
+            // To be implemented by decorator
+        }
+
+        public int SaveToSource() {
+            // To be implemented by decorator
+            return 0;
+        }
+
         public class SlotData {
             public ISlotFiller Filler { get; set; }
             public int Id { get; set; }
+            public int MeetingId { get; set; }
             public string Title { get; set; }
             public string Description { get; set; }
             public int SortNumber { get; set; }
@@ -96,6 +124,10 @@ namespace MScheduler_BusTier.Abstract {
             get { return _slot.Id; }
         }
 
+        public virtual int MeetingId {
+            get { return _slot.MeetingId; }
+        }
+
         public virtual string Title {
             get { return _slot.Title; }
         }
@@ -112,8 +144,20 @@ namespace MScheduler_BusTier.Abstract {
             get { return _slot.CanFillSlot; }
         }
 
+        public virtual int SlotFillerId {
+            get { return _slot.SlotFillerId; }
+        }
+
         public virtual string FillSlot(ISlotFiller filler) {
             return _slot.FillSlot(filler);
+        }
+
+        public virtual void LoadFromSource(int id) {
+            _slot.LoadFromSource(id);
+        }
+
+        public virtual int SaveToSource() {
+            return _slot.SaveToSource();
         }
     }
 }

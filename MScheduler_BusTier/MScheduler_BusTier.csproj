@@ -39,6 +39,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstract\ConnectionControl.cs" />
+    <Compile Include="Abstract\DAC.cs" />
+    <Compile Include="Concrete\DatabaseDecorators.cs" />
     <Compile Include="Abstract\Factory.cs" />
     <Compile Include="Abstract\Meeting.cs" />
     <Compile Include="Abstract\Slot.cs" />

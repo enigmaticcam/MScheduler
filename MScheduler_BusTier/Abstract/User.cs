@@ -9,6 +9,8 @@ namespace MScheduler_BusTier.Abstract {
         User.UserData Data { set; }
         int Id { get; }        
         string Name { get; }
+        void LoadFromSource(int id);
+        int SaveToSource();
     }
 
     public class User : IUser, ISlotFiller {
@@ -32,6 +34,15 @@ namespace MScheduler_BusTier.Abstract {
 
         public string Description {
             get { return this.Name; }
+        }
+
+        public void LoadFromSource(int id) {
+            // To be implemented by decorator
+        }
+
+        public int SaveToSource() {
+            // To be implemented by decorator
+            return 0;
         }
 
         public User() {
@@ -66,6 +77,14 @@ namespace MScheduler_BusTier.Abstract {
 
         public UserDecorator(IUser user) {
             _user = user;
+        }
+
+        public virtual void LoadFromSource(int id) {
+            _user.LoadFromSource(id);
+        }
+
+        public virtual int SaveToSource() {
+            return _user.SaveToSource();
         }
     }
 }

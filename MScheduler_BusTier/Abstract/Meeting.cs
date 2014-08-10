@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 
 namespace MScheduler_BusTier.Abstract {
     public interface IMeeting {
+        Meeting.MeetingData Data { set; }
         int Id { get; }
         string Description { get; }
         DateTime Date { get; }
         IEnumerable<ISlot> Slots { get; }
+        void LoadFromSource(int id);
+        int SaveToSource();
     }
 
     public abstract class Meeting {
@@ -38,6 +41,15 @@ namespace MScheduler_BusTier.Abstract {
             get { return _meetingData.Slots.OrderBy(s => s.SortNumber); }
         }
 
+        public void LoadFromSource(int id) {
+            // To be implemented by decorators
+        }
+
+        public int SaveToSource() {
+            // To be implemented by decorators
+            return 0;
+        }
+
         public class MeetingData {
             public int Id;
             public string Description;
@@ -48,8 +60,9 @@ namespace MScheduler_BusTier.Abstract {
 
     public abstract class MeetingDecorator : IMeeting {
         private IMeeting _meeting;
-        public MeetingDecorator(IMeeting meeting) {
-            _meeting = meeting;
+
+        public virtual Meeting.MeetingData Data {
+            set { _meeting.Data = value; }
         }
 
         public virtual int Id {
@@ -66,6 +79,18 @@ namespace MScheduler_BusTier.Abstract {
 
         public virtual IEnumerable<ISlot> Slots {
             get { return _meeting.Slots; }
+        }
+
+        public virtual void LoadFromSource(int id) {
+            _meeting.LoadFromSource(id);
+        }
+
+        public virtual int SaveToSource() {
+            return _meeting.SaveToSource();
+        }
+
+        public MeetingDecorator(IMeeting meeting) {
+            _meeting = meeting;
         }
     }
 }

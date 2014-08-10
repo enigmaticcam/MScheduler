@@ -12,6 +12,8 @@ namespace MScheduler_BusTier.Abstract {
         string Description { get; }
         IEnumerable<TemplateSlot> TemplateSlots { get; }
         List<ISlot> GenerateMeetingSlots();
+        void LoadFromSource(int id);
+        int SaveToSource();
     }
 
     public abstract class Template : ITemplate {
@@ -48,6 +50,15 @@ namespace MScheduler_BusTier.Abstract {
                 .SetTemplateSlots(_templateData.TemplateSlots)
                 .Build();
             return action.PerformAction();
+        }
+
+        public void LoadFromSource(int id) {
+            // To be implemented by decorator
+        }
+
+        public int SaveToSource() {
+            // To be imeplemented by decorator
+            return 0;
         }
 
         public class ActionGenerateMeetingSlots {
@@ -120,6 +131,7 @@ namespace MScheduler_BusTier.Abstract {
 
     public class TemplateSlot {
         public int Id { get; set; }
+        public int TemplateId { get; set; }
         public Slot.SlotType SlotType { get; set; }
         public string Title { get; set; }
         public int SortNumber { get; set; }
@@ -149,6 +161,14 @@ namespace MScheduler_BusTier.Abstract {
 
         public virtual List<ISlot> GenerateMeetingSlots() {
             return _template.GenerateMeetingSlots();
+        }
+
+        public virtual void LoadFromSource(int id) {
+            _template.LoadFromSource(id);
+        }
+
+        public virtual int SaveToSource() {
+            return _template.SaveToSource();
         }
     }
 }

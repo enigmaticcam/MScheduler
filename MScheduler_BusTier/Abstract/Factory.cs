@@ -10,12 +10,14 @@ namespace MScheduler_BusTier.Abstract {
         ISlot CreateSlot();
         IMeeting CreateMeeting();
         ITemplate CreateTemplate();
+        ISlotFiller CreateSlotFiller();
     }
 
     public abstract class Factory {
         public abstract ISlot CreateSlot();
         public abstract IMeeting CreateMeeting();
         public abstract ITemplate CreateTemplate();
+        public abstract ISlotFiller CreateSlotFiller();
     }
 
     public abstract class FactoryDecorator {
@@ -34,6 +36,10 @@ namespace MScheduler_BusTier.Abstract {
 
         public virtual ITemplate CreateTemplate() {
             return _factory.CreateTemplate();
+        }
+
+        public virtual ISlotFiller CreateSlotFiller() {
+            return _factory.CreateSlotFiller();
         }
     }
 }
