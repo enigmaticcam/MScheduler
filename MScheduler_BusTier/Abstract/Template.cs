@@ -139,7 +139,7 @@ namespace MScheduler_BusTier.Abstract {
 
     public class TemplateDecorator : ITemplate {
         private ITemplate _template;
-        public TemplateDecorator(Template template) {
+        public TemplateDecorator(ITemplate template) {
             _template = template;
         }
 

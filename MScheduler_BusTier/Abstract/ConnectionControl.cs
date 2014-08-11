@@ -14,6 +14,8 @@ namespace MScheduler_BusTier.Abstract {
         object ExecuteScalar(string sql);
         void ExecuteNonQuery(string sql);
         string SqlSafe(string sql);
+        string GenerateSqlTryWithTransactionOpen();
+        string GenerateSqlTryWithTransactionClose();
     }
     
     public class ConnectionControl : IConnectionControl {
@@ -42,6 +44,26 @@ namespace MScheduler_BusTier.Abstract {
 
         public string SqlSafe(string sql) {
             return sql.Replace("'", "''");
+        }
+
+        public string GenerateSqlTryWithTransactionOpen() {
+            StringBuilder sql = new StringBuilder();
+            sql.AppendLine("BEGIN TRY");
+            sql.AppendLine("BEGIN TRANSACTION");
+            return sql.ToString();
+        }
+
+        public string GenerateSqlTryWithTransactionClose() {
+            StringBuilder sql = new StringBuilder();
+            sql.AppendLine("COMMIT TRANSACTION");
+            sql.AppendLine("END TRY");
+            sql.AppendLine("BEGIN CATCH");
+            sql.AppendLine("declare @ErrorMessage nvarchar(max), @ErrorSeverity int, @ErrorState int;");
+            sql.AppendLine("select @ErrorMessage = ERROR_MESSAGE() + ' Line ' + cast(ERROR_LINE() as nvarchar(5)), @ErrorSeverity = ERROR_SEVERITY(), @ErrorState = ERROR_STATE();");
+            sql.AppendLine("rollback transaction");
+            sql.AppendLine("raiserror (@ErrorMessage, @ErrorSeverity, @ErrorState);");
+            sql.AppendLine("END CATCH");
+            return sql.ToString();
         }
 
         public ConnectionControl(string databaseName, string connectionString) {

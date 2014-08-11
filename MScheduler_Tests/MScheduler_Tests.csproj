@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="TemplateTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DatabaseTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MScheduler_BusTier\MScheduler_BusTier.csproj">
