@@ -11,59 +11,203 @@ namespace MScheduler_BusTier.Abstract {
     public class MeetingDecoratorDatabase : MeetingDecorator {
         private IMeeting _meeting;
         private IConnectionControl _connection;
+        private IFactory _factory;
         private DataSet _dataSet;
 
         public override void LoadFromSource(int id) {
-            string sql = "select * from " + _connection.DatabaseName + ".dbo.Meeting where MeetingId = " + id.ToString();
-            _dataSet = _connection.ExecuteDataSet(sql);
-            PopulateDataFromDataSet();
+            ActionLoadMeeting action = new ActionLoadMeeting.Builder()
+                .SetConnection(_connection)
+                .SetFactory(_factory)
+                .SetMeetingId(id)
+                .Build();
+            _meeting.Data = action.PerformAction();
         }
 
         public override int SaveToSource() {
-            StringBuilder sql = new StringBuilder();
-            sql.Append(SaveAsNewOrExisting());
-            sql.AppendLine("@Description = '" + _connection.SqlSafe(_meeting.Description));
-            sql.AppendLine(", @MeetingDate = '" + _meeting.Date.ToShortDateString() + "'");
-            return (int)_connection.ExecuteScalar(sql.ToString());
+            ActionSaveMeeting action = new ActionSaveMeeting(_meeting, _connection);
+            return action.PerformAction();
         }
 
-        private void PopulateDataFromDataSet() {
-            Meeting.MeetingData data = new Meeting.MeetingData();
-            data.Id = (int)GetValueFromDataSet("MeetingId");
-            data.Description = GetValueFromDataSet("MeetingDescription").ToString();
-            data.Date = (DateTime)GetValueFromDataSet("MeetingDate");
-            _meeting.Data = data;
+        public MeetingDecoratorDatabase(Builder builder) : base(builder.Meeting) {
+            _meeting = builder.Meeting;
+            _connection = builder.Connection;
+            _factory = builder.Factory;
         }
 
-        private string SaveAsNewOrExisting() {
-            if (_meeting.Id <= 0) {
-                return SaveAsNew();
-            } else {
-                return SaveAsExisting();
+        public class ActionLoadMeeting {
+            private IConnectionControl _connection;
+            private IFactory _factory;
+            private DataSet _dataSet;
+            private int _meetingId;
+            private Meeting.MeetingData _data = new Meeting.MeetingData();
+            private StringBuilder _sql = new StringBuilder();
+
+            public Meeting.MeetingData PerformAction() {
+                GenerateLoadSql();
+                GetDataSetFromDatabase();
+                PopulateDataFromDataSet();
+                PopulateSlots();
+                return _data;
+            }
+
+            private void GenerateLoadSql() {
+                _sql.AppendLine("select * from " + _connection.DatabaseName + ".dbo.Meeting");
+                _sql.AppendLine("where MeetingId = " + _meetingId);
+                _sql.AppendLine("");
+                _sql.AppendLine("select * from " + _connection.DatabaseName + ".dbo.Slot");
+                _sql.AppendLine("where MeetingId = " + _meetingId);
+            }
+
+            private void GetDataSetFromDatabase() {
+                _dataSet = _connection.ExecuteDataSet(_sql.ToString());
+            }
+
+            private void PopulateDataFromDataSet() {
+                _data.Id = _meetingId;
+                _data.Description = GetValueFromDataSet("MeetingDescription").ToString();
+                _data.Date = (DateTime)GetValueFromDataSet("MeetingDate");
+            }
+
+            private void PopulateSlots() {
+                List<ISlot> slots = new List<ISlot>();
+                foreach (DataRow dr in _dataSet.Tables[1].Rows) {
+                    ISlot slot = _factory.CreateSlot();
+                    slot.LoadFromSource((int)dr["SlotId"]);
+                    slots.Add(slot);
+                }
+                _data.Slots = slots;
+            }
+
+            private object GetValueFromDataSet(string columnName) {
+                return _dataSet.Tables[0].Rows[0][columnName];
+            }
+
+            public ActionLoadMeeting(Builder builder) {
+                _factory = builder.Factory;
+                _connection = builder.Connection;
+                _meetingId = builder.MeetingId;
+            }
+
+            public class Builder {
+                public IFactory Factory;
+                public IConnectionControl Connection;
+                public int MeetingId;
+
+                public Builder SetFactory(IFactory factory) {
+                    this.Factory = factory;
+                    return this;
+                }
+
+                public Builder SetConnection(IConnectionControl connection) {
+                    this.Connection = connection;
+                    return this;
+                }
+
+                public Builder SetMeetingId(int meetingId) {
+                    this.MeetingId = meetingId;
+                    return this;
+                }
+
+                public ActionLoadMeeting Build() {
+                    return new ActionLoadMeeting(this);
+                }
             }
         }
 
-        private string SaveAsNew() {
-            StringBuilder sql = new StringBuilder();
-            sql.AppendLine("exec " + _connection.DatabaseName + ".dbo.Meeting_New");
-            return sql.ToString();
+        public class ActionSaveMeeting {
+            private IConnectionControl _connection;
+            private IMeeting _meeting;
+            private StringBuilder _sql = new StringBuilder();
+
+            public int PerformAction() {
+                PrepareSql();
+                GenerateTableSql();
+                AddNewIdReturn();
+                CloseSQL();
+                int id = PerformSave();
+                SaveSlots();
+                return id;
+            }
+
+            private void PrepareSql() {
+                _sql.AppendLine(_connection.GenerateSqlTryWithTransactionOpen());
+                _sql.AppendLine("declare @MeetingId int");
+            }
+
+            private void GenerateTableSql() {
+                if (_meeting.Id <= 0) {
+                    GenerateTableSqlNew();
+                } else {
+                    GenerateTableSqlExisting();
+                }
+            }
+
+            private void GenerateTableSqlNew() {
+                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.Meeting(MeetingDescription, MeetingDate)");
+                _sql.Append("values('" + _connection.SqlSafe(_meeting.Description) + "'");
+                _sql.Append(",'" + _meeting.Date.ToShortDateString() + "'");
+                _sql.AppendLine(")");
+                _sql.AppendLine("");
+                _sql.AppendLine("select @MeetingId = max(MeetingID) from " + _connection.DatabaseName + ".dbo.Meeting");
+            }
+
+            private void GenerateTableSqlExisting() {
+                _sql.AppendLine("update " + _connection.DatabaseName + ".dbo.Meeting");
+                _sql.AppendLine("set MeetingDescription = '" + _connection.SqlSafe(_meeting.Description) + "'");
+                _sql.AppendLine(", MeetingDate = '" + _meeting.Date.ToShortDateString() + "'");
+                _sql.AppendLine("where MeetingId = " + _meeting.Id);
+                _sql.AppendLine("");
+                _sql.AppendLine("set @MeetingId = " + _meeting.Id);
+            }
+
+            private void AddNewIdReturn() {
+                _sql.AppendLine("");
+                _sql.AppendLine("select @MeetingId");
+            }
+
+            private void CloseSQL() {
+                _sql.AppendLine(_connection.GenerateSqlTryWithTransactionClose());
+            }
+
+            private int PerformSave() {
+                return (int)_connection.ExecuteScalar(_sql.ToString());
+            }
+
+            private void SaveSlots() {
+                foreach (ISlot slot in _meeting.Slots) {
+                    slot.SaveToSource();
+                }
+            }
+
+            public ActionSaveMeeting(IMeeting meeting, IConnectionControl connection) {
+                _meeting = meeting;
+                _connection = connection;
+            }
         }
 
-        private string SaveAsExisting() {
-            StringBuilder sql = new StringBuilder();
-            sql.AppendLine("exec " + _connection.DatabaseName + ".dbo.Meeting_Edit");
-            sql.AppendLine("@MeetingId = " + _meeting.Id);
-            sql.Append(",");
-            return sql.ToString();
-        }
+        public class Builder {
+            public IMeeting Meeting;
+            public IConnectionControl Connection;
+            public IFactory Factory;
 
-        private object GetValueFromDataSet(string columnName) {
-            return _dataSet.Tables[0].Rows[0][columnName];
-        }
+            public Builder SetMeeting(IMeeting meeting) {
+                this.Meeting = meeting;
+                return this;
+            }
 
-        public MeetingDecoratorDatabase(IMeeting meeting, IConnectionControl connection) : base(meeting) {
-            _meeting = meeting;
-            _connection = connection;
+            public Builder SetConnection(IConnectionControl connection) {
+                this.Connection = connection;
+                return this;
+            }
+
+            public Builder SetFactory(IFactory factory) {
+                this.Factory = factory;
+                return this;
+            }
+
+            public MeetingDecoratorDatabase Build() {
+                return new MeetingDecoratorDatabase(this);
+            }
         }
     }
 
@@ -193,7 +337,7 @@ namespace MScheduler_BusTier.Abstract {
         private TemplateSlot GetTemplateSlotFromDataRow(DataRow dr) {
             TemplateSlot templateSlot = new TemplateSlot();
             templateSlot.Id = (int)dr["TemplateId"];
-            templateSlot.SlotType = (Slot.SlotType)dr["SlotTypeId"];
+            templateSlot.SlotType = (Slot.enumSlotType)dr["SlotTypeId"];
             templateSlot.Title = dr["Title"].ToString();
             templateSlot.SortNumber = (int)dr["SortNumber"];
             return templateSlot;

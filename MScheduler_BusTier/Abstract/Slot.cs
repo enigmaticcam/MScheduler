@@ -20,6 +20,7 @@ namespace MScheduler_BusTier.Abstract {
         int SortNumber { get; }
         int SlotFillerId { get; }
         bool CanFillSlot { get; }
+        bool IsDeleted { get; }
         string FillSlot(ISlotFiller filler);
         void LoadFromSource(int id);
         int SaveToSource();
@@ -35,7 +36,7 @@ namespace MScheduler_BusTier.Abstract {
             set { _slotData = value; }
         }
 
-        public enum SlotType {
+        public enum enumSlotType {
             None = 0,
             User
         }
@@ -78,6 +79,10 @@ namespace MScheduler_BusTier.Abstract {
             get { return true; }
         }
 
+        public bool IsDeleted {
+            get { return _slotData.IsDeleted; }
+        }
+
         public string FillSlot(ISlotFiller filler) {
             if (this.CanFillSlot) {
                 _slotData.Filler = filler;
@@ -103,6 +108,7 @@ namespace MScheduler_BusTier.Abstract {
             public string Title { get; set; }
             public string Description { get; set; }
             public int SortNumber { get; set; }
+            public bool IsDeleted { get; set; }
         }
     }
 
@@ -146,6 +152,10 @@ namespace MScheduler_BusTier.Abstract {
 
         public virtual int SlotFillerId {
             get { return _slot.SlotFillerId; }
+        }
+
+        public virtual bool IsDeleted {
+            get { return _slot.IsDeleted; }
         }
 
         public virtual string FillSlot(ISlotFiller filler) {

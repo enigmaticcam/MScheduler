@@ -132,7 +132,7 @@ namespace MScheduler_BusTier.Abstract {
     public class TemplateSlot {
         public int Id { get; set; }
         public int TemplateId { get; set; }
-        public Slot.SlotType SlotType { get; set; }
+        public Slot.enumSlotType SlotType { get; set; }
         public string Title { get; set; }
         public int SortNumber { get; set; }
     }
