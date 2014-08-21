@@ -401,4 +401,217 @@ namespace MScheduler_BusTier.Abstract {
             }
         }
     }
+
+    public class TemplateDecoratorDatabase : TemplateDecorator {
+        private ITemplate _template;
+        private IConnectionControl _connection;
+        private IFactory _factory;
+
+        public override void LoadFromSource(int id) {
+            ActionLoadTemplate action = new ActionLoadTemplate.Builder()
+                .SetConnection(_connection)
+                .SetTemplateId(id)
+                .Build();
+            _template.Data = action.PerformAction();
+        }
+
+        public override int SaveToSource() {
+            ActionSaveTemplate action = new ActionSaveTemplate(_template, _connection);
+            return action.PerformAction();
+        }
+
+        public class ActionLoadTemplate {
+            private IConnectionControl _connection;
+            private int _templateId;
+            private Template.TemplateData _data = new Template.TemplateData();
+            private StringBuilder _sql = new StringBuilder();
+            private DataSet _dataSet;
+
+            public Template.TemplateData PerformAction() {
+                GenerateLoadSql();
+                GetDataSetFromDatabase();
+                PopulateDataFromDataSet();
+                PopulateTemplateSlots();
+                return _data;
+            }
+
+            private void GenerateLoadSql() {
+                _sql.AppendLine("select * from " + _connection.DatabaseName + ".dbo.Template");
+                _sql.AppendLine("where TemplateId = " + _templateId);
+                _sql.AppendLine("");
+                _sql.AppendLine("select * from " + _connection.DatabaseName + ".dbo.TemplateSlot");
+                _sql.AppendLine("where TemplateId = " + _templateId);
+            }
+
+            private void GetDataSetFromDatabase() {
+                _dataSet = _connection.ExecuteDataSet(_sql.ToString());
+            }
+
+            private void PopulateDataFromDataSet() {
+                _data.Id = _templateId;
+                _data.Description = GetValueFromDataSet("Description").ToString();                
+            }
+
+            private void PopulateTemplateSlots() {
+                List<TemplateSlot> slots = new List<TemplateSlot>();
+                foreach (DataRow dr in _dataSet.Tables[1].Rows) {
+                    TemplateSlot slot = new TemplateSlot();
+                    slot.Id = (int)dr["TemplateSlotId"];
+                    slot.TemplateId = (int)dr["TemplateId"];
+                    slot.SlotType = (Slot.enumSlotType)dr["SlotType"];
+                    slot.Title = dr["Title"].ToString();
+                    slot.SortNumber = (int)dr["SortNumber"];
+                    slots.Add(slot);
+                }
+                _data.TemplateSlots = slots;
+            }
+
+            private object GetValueFromDataSet(string columnName) {
+                return _dataSet.Tables[0].Rows[0][columnName];
+            }
+
+            public ActionLoadTemplate(Builder builder) {
+                _connection = builder.Connection;
+                _templateId = builder.TemplateId;
+            }
+
+            public class Builder {
+                public IConnectionControl Connection;
+                public int TemplateId;
+
+                public Builder SetConnection(IConnectionControl connection) {
+                    this.Connection = connection;
+                    return this;
+                }
+
+                public Builder SetTemplateId(int templateId) {
+                    this.TemplateId = templateId;
+                    return this;
+                }
+
+                public ActionLoadTemplate Build() {
+                    return new ActionLoadTemplate(this);
+                }
+            }
+        }
+
+        public class ActionSaveTemplate {
+            private IConnectionControl _connection;
+            private ITemplate _template;
+            private StringBuilder _sql = new StringBuilder();
+
+            public int PerformAction() {
+                PrepareSql();
+                GenerateTableSql();
+                GenerateTemplateSlotSql();
+                AddNewIdReturn();
+                CloseSQL();
+                int id = PerformSave();
+                return id;
+            }
+
+            private void PrepareSql() {
+                _sql.AppendLine(_connection.GenerateSqlTryWithTransactionOpen());
+                _sql.AppendLine("declare @TemplateId int");
+            }
+
+            private void GenerateTableSql() {
+                if (_template.Id <= 0) {
+                    GenerateTableSqlNew();
+                } else {
+                    GenerateTableSqlExisting();
+                }
+            }
+
+            private void GenerateTableSqlNew() {
+                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.Template(Descrption)");
+                _sql.Append("values('" + _connection.SqlSafe(_template.Description) + "'");
+                _sql.AppendLine(")");
+                _sql.AppendLine("");
+                _sql.AppendLine("select @TemplateId = max(TemplateId) from " + _connection.DatabaseName + ".dbo.Template");
+            }
+
+            private void GenerateTableSqlExisting() {
+                _sql.AppendLine("");
+                _sql.AppendLine("update " + _connection.DatabaseName + ".dbo.Template");
+                _sql.AppendLine("set Description = '" + _connection.SqlSafe(_template.Description) + "'");
+                _sql.AppendLine("where TemplateId = " + _template.Id);
+                _sql.AppendLine("");
+                _sql.AppendLine("set @TemplateId = " + _template.Id);
+            }
+
+            private void GenerateTemplateSlotSql() {
+                DeleteExistingTemplateSlots();
+                GenerateTemplateSlotSqlInidividuals();
+            }
+
+            private void DeleteExistingTemplateSlots() {
+                _sql.AppendLine("");
+                _sql.AppendLine("delete from " + _connection.DatabaseName + ".dbo.TemplateSlot");
+                _sql.AppendLine("where TemplateId = " + _template.Id);
+            }
+
+            private void GenerateTemplateSlotSqlInidividuals() {
+                _sql.AppendLine("");
+                foreach (TemplateSlot slot in _template.TemplateSlots) {
+                    _sql.AppendLine("insert into TemplateSlot(TemplateId, SlotTypeId, Title, SortNumber)");
+                    _sql.Append("values(" + slot.TemplateId);
+                    _sql.Append("," + (int)slot.SlotType);
+                    _sql.Append(",'" + _connection.SqlSafe(slot.Title) + "'");
+                    _sql.Append("," + slot.SortNumber);
+                    _sql.AppendLine(")");
+                }
+            }
+
+            private void AddNewIdReturn() {
+                _sql.AppendLine("");
+                _sql.AppendLine("select @TemplateId");
+            }
+
+            private void CloseSQL() {
+                _sql.AppendLine(_connection.GenerateSqlTryWithTransactionClose());
+            }
+
+            private int PerformSave() {
+                return (int)_connection.ExecuteScalar(_sql.ToString());
+            }
+
+            public ActionSaveTemplate(ITemplate template, IConnectionControl connection) {
+                _template = template;
+                _connection = connection;
+            }
+        }
+        
+
+        public TemplateDecoratorDatabase(Builder builder) : base(builder.Template) {
+            _template = builder.Template;
+            _connection = builder.Connection;
+            _factory = builder.Factory;
+        }
+
+        public class Builder {
+            public ITemplate Template;
+            public IConnectionControl Connection;
+            public IFactory Factory;
+
+            public Builder SetTemplate(ITemplate template) {
+                this.Template = template;
+                return this;
+            }
+
+            public Builder SetConnection(IConnectionControl connection) {
+                this.Connection = connection;
+                return this;
+            }
+
+            public Builder SetFactor(IFactory factory) {
+                this.Factory = factory;
+                return this;
+            }
+
+            public TemplateDecoratorDatabase Build() {
+                return new TemplateDecoratorDatabase(this);
+            }
+        }
+    }
 }
