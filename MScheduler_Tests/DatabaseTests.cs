@@ -138,5 +138,53 @@ namespace MScheduler_Tests {
             sql.AppendLine("values(" + meetingId + ", 0, 'Title', 'Description', 1)");
             connection.ExecuteNonQuery(sql.ToString());
         }
+
+        [TestMethod]
+        public void DatabaseTests_SlotSaveAndReload() {
+
+            // Arrange
+            IConnectionControl connection = GetConnection();
+
+            Mock<ISlotFiller> slotFiller = new Mock<ISlotFiller>();
+            slotFiller.Setup(s => s.SlotFillerId).Returns(1);
+            slotFiller.Setup(s => s.Description).Returns("SlotFiller");
+
+            Mock<IFactory> factory = new Mock<IFactory>();
+            factory.Setup(f => f.CreateSlotFiller(It.IsAny<int>())).Returns(slotFiller.Object);
+
+            Slot.SlotData data = new Slot.SlotData();
+            data.Description = "Description";
+            data.Filler = slotFiller.Object;
+            data.IsDeleted = false;
+            data.MeetingId = 5;
+            data.SortNumber = 10;
+            data.Title = "Title";
+
+            Mock<Slot> slotOld = new Mock<Slot>();
+            slotOld.Object.Data = data;
+            SlotDecoratorDatabase database = new SlotDecoratorDatabase.Builder()
+                .SetConnection(connection)
+                .SetFactory(factory.Object)
+                .SetSlot(slotOld.Object)
+                .Build();
+
+            // Act
+            PrepForTesting();
+            int slotId = database.SaveToSource();
+            Mock<Slot> slotNew = new Mock<Slot>();
+            database = new SlotDecoratorDatabase.Builder()
+                .SetConnection(connection)
+                .SetFactory(factory.Object)
+                .SetSlot(slotNew.Object)
+                .Build();
+            database.LoadFromSource(slotId);
+
+            // Assert
+            Assert.AreEqual(slotOld.Object.Description, slotNew.Object.Description);
+            Assert.AreEqual(slotOld.Object.MeetingId, slotNew.Object.MeetingId);
+            Assert.AreEqual(slotOld.Object.SlotFillerId, slotNew.Object.SlotFillerId);
+            Assert.AreEqual(slotOld.Object.SortNumber, slotNew.Object.SortNumber);
+            Assert.AreEqual(slotOld.Object.Title, slotNew.Object.Title);
+        }
     }
 }
