@@ -215,65 +215,81 @@ namespace MScheduler_BusTier.Abstract {
         private ISlot _slot;
         private IConnectionControl _connection;
         private IFactory _factory;
-        private DataSet _dataSet;
 
-        public override void LoadFromSource(int id) {
-            string sql = "select * from " + _connection.DatabaseName + ".dbo.Slot where SlotId = " + id.ToString();
-            _dataSet = _connection.ExecuteDataSet(sql);
-            PopulateDataFromDataSet();
-        }
+        public class ActionLoadSlot {
+            private IConnectionControl _connection;
+            private IFactory _factory;
+            private DataSet _dataSet;
+            private int _slotId;
+            private Slot.SlotData _data = new Slot.SlotData();
+            private StringBuilder _sql = new StringBuilder();
 
-        public override int SaveToSource() {
-            StringBuilder sql = new StringBuilder();
-            sql.Append(SaveAsNewOrExisting());
-            sql.AppendLine("@MeetingId = " + _slot.MeetingId);
-            sql.AppendLine(", @SlotFillerId = " + _slot.SlotFillerId);
-            sql.AppendLine(", @Title = '" + _connection.SqlSafe(_slot.Title) + "'");
-            sql.AppendLine(", @Description = '" + _connection.SqlSafe(_slot.Description) + "'");
-            sql.AppendLine(", @SortNumber = " + _slot.SortNumber);
-            return (int)_connection.ExecuteScalar(sql.ToString());
-        }
+            public Slot.SlotData PerformAction() {
+                GenerateLoadSql();
+                GetDataSetFromDatabase();
+                PopulateDataFromDataSet();
+                return _data;
+            }
 
-        private void PopulateDataFromDataSet() {
-            Slot.SlotData data = new Slot.SlotData();
-            data.MeetingId = (int)GetValueFromDataSet("MeetingId");
-            data.Title = GetValueFromDataSet("Title").ToString();
-            data.Description = GetValueFromDataSet("Description").ToString();
-            data.SortNumber = (int)GetValueFromDataSet("SortNumber");
-            data.Filler = _factory.CreateSlotFiller((int)GetValueFromDataSet("SlotFillerId"));
-            _slot.Data = data;
-        }
+            private void GenerateLoadSql() {
+                _sql.AppendLine("select * from " + _connection.DatabaseName + ".dbo.Slot");
+                _sql.AppendLine("where SlotId = " + _slotId);
+            }
 
-        private string SaveAsNewOrExisting() {
-            if (_slot.Id <= 0) {
-                return SaveAsNew();
-            } else {
-                return SaveAsExisting();
+            private void GetDataSetFromDatabase() {
+                _dataSet = _connection.ExecuteDataSet(_sql.ToString());
+            }
+
+            private void PopulateDataFromDataSet() {
+                _data.Id = _slotId;
+                _data.IsDeleted = false;
+                _data.MeetingId = (int)GetValueFromDataSet("MeetingId");
+                _data.SortNumber = (int)GetValueFromDataSet("SortNumber");
+                _data.Title = GetValueFromDataSet("Title").ToString();
+                _data.Description = GetValueFromDataSet("Description").ToString();
+                _data.Filler = _factory.CreateSlotFiller((int)GetValueFromDataSet("SlotFillderId"));
+            }
+
+            private object GetValueFromDataSet(string columnName) {
+                return _dataSet.Tables[0].Rows[0][columnName];
+            }
+
+            public ActionLoadSlot(Builder builder) {
+                _factory = builder.Factory;
+                _connection = builder.Connection;
+                _slotId = builder.SlotId;
+            }
+
+            public class Builder {
+                public IFactory Factory;
+                public IConnectionControl Connection;
+                public int SlotId;
+
+                public Builder SetFactory(IFactory factory) {
+                    this.Factory = factory;
+                    return this;
+                }
+
+                public Builder SetConnection(IConnectionControl connection) {
+                    this.Connection = connection;
+                    return this;
+                }
+
+                public Builder SetSlotId(int slotId) {
+                    this.SlotId = slotId;
+                    return this;
+                }
+
+                public ActionLoadSlot Build() {
+                    return new ActionLoadSlot(this);
+                }
             }
         }
 
-        private string SaveAsNew() {
-            StringBuilder sql = new StringBuilder();
-            sql.AppendLine("exec " + _connection.DatabaseName + ".dbo.Slot_New");
-            return sql.ToString();
-        }
-
-        private string SaveAsExisting() {
-            StringBuilder sql = new StringBuilder();
-            sql.AppendLine("exec " + _connection.DatabaseName + ".dbo.Slot_Edit");
-            sql.AppendLine("@SlotId = " + _slot.Id);
-            sql.Append(",");
-            return sql.ToString();
-        }
-
-        private object GetValueFromDataSet(string columnName) {
-            return _dataSet.Tables[0].Rows[0][columnName];
-        }
-
-        public SlotDecoratorDatabase(Builder builder) : base(builder.Slot) {
-            _slot = builder.Slot;
+        public SlotDecoratorDatabase(Builder builder): base(builder.Slot) {
             _connection = builder.Connection;
             _factory = builder.Factory;
+            _slot = builder.Slot;
         }
 
         public class Builder {
