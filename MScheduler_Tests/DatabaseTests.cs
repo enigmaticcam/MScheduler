@@ -186,5 +186,86 @@ namespace MScheduler_Tests {
             Assert.AreEqual(slotOld.Object.SortNumber, slotNew.Object.SortNumber);
             Assert.AreEqual(slotOld.Object.Title, slotNew.Object.Title);
         }
+
+        [TestMethod]
+        public void DatabaseTests_TemplateSaveAndReload() {
+
+            // Arrange
+            IConnectionControl connection = GetConnection();
+
+            Mock<IFactory> factory = new Mock<IFactory>();
+
+            TemplateSlot slot1 = new TemplateSlot();
+            slot1.SlotType = Slot.enumSlotType.User;
+            slot1.SortNumber = 2;
+            slot1.TemplateId = 1;
+            slot1.Title = "Title1";
+            TemplateSlot slot2 = new TemplateSlot();
+            slot2.SlotType = Slot.enumSlotType.User;
+            slot2.SortNumber = 1;
+            slot2.TemplateId = 1;
+            slot2.Title = "Title2";
+            List<TemplateSlot> slots = new List<TemplateSlot>();
+            slots.Add(slot1);
+            slots.Add(slot2);
+
+            Template.TemplateData data = new Template.TemplateData();
+            data.Description = "Description";
+            data.TemplateSlots = slots;
+
+            Mock<Template> templateOld = new Mock<Template>(factory.Object);
+            templateOld.Object.Data = data;
+            TemplateDecoratorDatabase database = new TemplateDecoratorDatabase.Builder()
+                .SetConnection(connection)
+                .SetTemplate(templateOld.Object)
+                .Build();
+
+            // Act
+            PrepForTesting();
+            int templateId = database.SaveToSource();
+            Mock<Template> templateNew = new Mock<Template>(factory.Object);
+            database = new TemplateDecoratorDatabase.Builder()
+                .SetConnection(connection)
+                .SetTemplate(templateNew.Object)
+                .Build();
+            database.LoadFromSource(templateId);
+
+            // Assert
+            Assert.AreEqual(templateOld.Object.Description, templateNew.Object.Description);
+            Assert.AreEqual(templateOld.Object.TemplateSlots.Count(), templateNew.Object.TemplateSlots.Count());
+            Assert.AreEqual(templateOld.Object.TemplateSlots.ElementAt(0).SlotType, templateNew.Object.TemplateSlots.ElementAt(0).SlotType);
+            Assert.AreEqual(templateOld.Object.TemplateSlots.ElementAt(0).SortNumber, templateNew.Object.TemplateSlots.ElementAt(0).SortNumber);
+            Assert.AreEqual(templateOld.Object.TemplateSlots.ElementAt(0).Title, templateNew.Object.TemplateSlots.ElementAt(0).Title);
+            Assert.AreEqual(templateOld.Object.TemplateSlots.ElementAt(1).SlotType, templateNew.Object.TemplateSlots.ElementAt(1).SlotType);
+            Assert.AreEqual(templateOld.Object.TemplateSlots.ElementAt(1).SortNumber, templateNew.Object.TemplateSlots.ElementAt(1).SortNumber);
+            Assert.AreEqual(templateOld.Object.TemplateSlots.ElementAt(1).Title, templateNew.Object.TemplateSlots.ElementAt(1).Title);
+        }
+
+        [TestMethod]
+        public void DatabaseTests_UserSaveAndReload() {
+
+            // Arrange
+            IConnectionControl connection = GetConnection();
+
+            User.UserData data = new User.UserData();
+            data.Name = "Name";
+
+            Mock<User> userOld = new Mock<User>();
+            userOld.Object.Data = data;
+            UserDecoratorDatabase database = new UserDecoratorDatabase(userOld.Object, connection);
+            
+            // Act
+            PrepForTesting();
+            int userId = database.SaveToSource();
+            Mock<User> userNew = new Mock<User>();
+            database = new UserDecoratorDatabase(userNew.Object, connection);
+            database.LoadFromSource(userId);
+
+            // Assert
+            Assert.AreEqual(userOld.Object.Description, userNew.Object.Description);
+            Assert.AreEqual(userOld.Object.Name, userNew.Object.Name);
+            Assert.AreNotEqual(0, userNew.Object.SlotFillerId);
+            
+        }
     }
 }

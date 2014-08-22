@@ -405,7 +405,6 @@ namespace MScheduler_BusTier.Abstract {
     public class TemplateDecoratorDatabase : TemplateDecorator {
         private ITemplate _template;
         private IConnectionControl _connection;
-        private IFactory _factory;
 
         public override void LoadFromSource(int id) {
             ActionLoadTemplate action = new ActionLoadTemplate.Builder()
@@ -458,7 +457,7 @@ namespace MScheduler_BusTier.Abstract {
                     TemplateSlot slot = new TemplateSlot();
                     slot.Id = (int)dr["TemplateSlotId"];
                     slot.TemplateId = (int)dr["TemplateId"];
-                    slot.SlotType = (Slot.enumSlotType)dr["SlotType"];
+                    slot.SlotType = (Slot.enumSlotType)dr["SlotTypeId"];
                     slot.Title = dr["Title"].ToString();
                     slot.SortNumber = (int)dr["SortNumber"];
                     slots.Add(slot);
@@ -524,7 +523,7 @@ namespace MScheduler_BusTier.Abstract {
             }
 
             private void GenerateTableSqlNew() {
-                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.Template(Descrption)");
+                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.Template(Description)");
                 _sql.Append("values('" + _connection.SqlSafe(_template.Description) + "'");
                 _sql.AppendLine(")");
                 _sql.AppendLine("");
@@ -586,13 +585,11 @@ namespace MScheduler_BusTier.Abstract {
         public TemplateDecoratorDatabase(Builder builder) : base(builder.Template) {
             _template = builder.Template;
             _connection = builder.Connection;
-            _factory = builder.Factory;
         }
 
         public class Builder {
             public ITemplate Template;
             public IConnectionControl Connection;
-            public IFactory Factory;
 
             public Builder SetTemplate(ITemplate template) {
                 this.Template = template;
@@ -604,14 +601,169 @@ namespace MScheduler_BusTier.Abstract {
                 return this;
             }
 
-            public Builder SetFactor(IFactory factory) {
-                this.Factory = factory;
-                return this;
-            }
-
             public TemplateDecoratorDatabase Build() {
                 return new TemplateDecoratorDatabase(this);
             }
+        }
+    }
+
+    public class UserDecoratorDatabase : UserDecorator {
+        private IUser _user;
+        private IConnectionControl _connection;
+        private IFactory _factory;
+
+        public override void LoadFromSource(int id) {
+            ActionLoadUser action = new ActionLoadUser.Builder()
+                .SetConnection(_connection)
+                .SetUserId(id)
+                .Build();
+            _user.Data = action.PerformAction();
+        }
+
+        public override int SaveToSource() {
+            ActionSaveUser action = new ActionSaveUser(_connection, _user);
+            return action.PerformAction();
+        }
+
+        public class ActionLoadUser {
+            private IConnectionControl _connection;
+            private IFactory _factory;
+            private DataSet _dataSet;
+            private int _userId;
+            private User.UserData _data = new User.UserData();
+            private StringBuilder _sql = new StringBuilder();
+
+            public User.UserData PerformAction() {
+                GenerateLoadSql();
+                GetDataSetFromDatabase();
+                PopulateDataFromDataSet();
+                return _data;
+            }
+
+            private void GenerateLoadSql() {
+                _sql.AppendLine("select * from " + _connection.DatabaseName + ".dbo.[User]");
+                _sql.AppendLine("where UserId = " + _userId);
+            }
+
+            private void GetDataSetFromDatabase() {
+                _dataSet = _connection.ExecuteDataSet(_sql.ToString());
+            }
+
+            private void PopulateDataFromDataSet() {
+                _data.Id = _userId;
+                _data.Name = GetValueFromDataSet("Name").ToString();
+                _data.SlotFillerId = (int)GetValueFromDataSet("SlotFillerId");
+            }
+
+            private object GetValueFromDataSet(string columnName) {
+                return _dataSet.Tables[0].Rows[0][columnName];
+            }
+
+            public ActionLoadUser(Builder builder) {
+                _factory = builder.Factory;
+                _connection = builder.Connection;
+                _userId = builder.UserId;
+            }
+
+            public class Builder {
+                public IFactory Factory;
+                public IConnectionControl Connection;
+                public int UserId;
+
+                public Builder SetFactory(IFactory factory) {
+                    this.Factory = factory;
+                    return this;
+                }
+
+                public Builder SetConnection(IConnectionControl connection) {
+                    this.Connection = connection;
+                    return this;
+                }
+
+                public Builder SetUserId(int userId) {
+                    this.UserId = userId;
+                    return this;
+                }
+
+                public ActionLoadUser Build() {
+                    return new ActionLoadUser(this);
+                }
+            }
+        }
+
+        public class ActionSaveUser {
+            private IConnectionControl _connection;
+            private IUser _user;
+            private StringBuilder _sql = new StringBuilder();
+
+            public int PerformAction() {
+                PrepareSql();
+                GenerateTableSql();
+                AddNewIdReturn();
+                CloseSQL();
+                int id = PerformSave();
+                return id;
+            }
+
+            private void PrepareSql() {
+                _sql.AppendLine(_connection.GenerateSqlTryWithTransactionOpen());
+                _sql.AppendLine("declare @UserId int");
+                _sql.AppendLine("declare @SlotFillerId int");
+            }
+
+            private void GenerateTableSql() {
+                if (_user.Id <= 0) {
+                    GenerateTableSqlNew();
+                } else {
+                    GenerateTableSqlExisting();
+                }
+            }
+
+            private void GenerateTableSqlNew() {
+                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.SlotFiller(SlotTypeId)");
+                _sql.AppendLine("values(" + (int)Slot.enumSlotType.User);
+                _sql.AppendLine(")");
+                _sql.AppendLine("");
+                _sql.AppendLine("select @SlotFillerId = max(SlotFillerId) from " + _connection.DatabaseName + ".dbo.SlotFiller");
+                _sql.AppendLine("");
+                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.[User](SlotFillerId, Name)");
+                _sql.Append("values(@SlotFillerId");
+                _sql.Append(",'" + _connection.SqlSafe(_user.Name) + "'");
+                _sql.AppendLine(")");
+                _sql.AppendLine("");
+                _sql.AppendLine("select @UserId = max(UserId) from " + _connection.DatabaseName + ".dbo.[User]");
+            }
+
+            private void GenerateTableSqlExisting() {
+                _sql.AppendLine("update " + _connection.DatabaseName + ".dbo.[User]");
+                _sql.AppendLine("set Name = " + _connection.SqlSafe(_user.Name) + "'");
+                _sql.AppendLine("where UserId = " + _user.Id);
+                _sql.AppendLine("");
+                _sql.AppendLine("set @UserId = " + _user.Id);
+            }
+
+            private void AddNewIdReturn() {
+                _sql.AppendLine("");
+                _sql.AppendLine("select @UserId");
+            }
+
+            private void CloseSQL() {
+                _sql.AppendLine(_connection.GenerateSqlTryWithTransactionClose());
+            }
+
+            private int PerformSave() {
+                return (int)_connection.ExecuteScalar(_sql.ToString());
+            }
+
+            public ActionSaveUser(IConnectionControl connection, IUser user) {
+                _connection = connection;
+                _user = user;
+            }
+        }
+
+        public UserDecoratorDatabase(IUser user, IConnectionControl connection) : base(user) {
+            _user = user;
+            _connection = connection;
         }
     }
 }
