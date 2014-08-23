@@ -53,7 +53,8 @@ namespace MScheduler_BusTier.Concrete {
         }
 
         public override ITemplate CreateTemplate() {
-            throw new NotImplementedException();
+            Template template = new TemplateImp(this);
+            return WrapInDecoratorsTemplate(template);
         }
 
         public override IUser CreateUser() {
@@ -82,6 +83,14 @@ namespace MScheduler_BusTier.Concrete {
         private IUser WrapInDecoratorsUser(User user) {
             IUser decoratoedUser = new UserDecoratorDatabase(user, this.CreateAppConnection(this.DefaultDatabaseInstance));
             return decoratoedUser;
+        }
+
+        private ITemplate WrapInDecoratorsTemplate(Template template) {
+            ITemplate decoratedTemplate = new TemplateDecoratorDatabase.Builder()
+                .SetConnection(this.CreateAppConnection(this.DefaultDatabaseInstance))
+                .SetTemplate(template)
+                .Build();
+            return decoratedTemplate;
         }
     }
 }
