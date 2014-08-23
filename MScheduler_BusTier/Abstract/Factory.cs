@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MScheduler_BusTier.Abstract;
+using MScheduler_BusTier.Concrete;
 
 namespace MScheduler_BusTier.Abstract {
     public interface IFactory {
@@ -13,9 +14,10 @@ namespace MScheduler_BusTier.Abstract {
         IMeeting CreateMeeting();
         ITemplate CreateTemplate();
         ISlotFiller CreateSlotFiller(int id);
+        IUser CreateUser();
     }
 
-    public abstract class Factory {
+    public abstract class Factory : IFactory {
         public enum enumDatabaseInstance {
             Production = 0,
             Test,
@@ -28,9 +30,25 @@ namespace MScheduler_BusTier.Abstract {
         public abstract IMeeting CreateMeeting();
         public abstract ITemplate CreateTemplate();
         public abstract ISlotFiller CreateSlotFiller(int id);
+        public abstract IUser CreateUser();
+
+        public static IFactory CreateInstance() {
+            Factory factory = new FactoryMain();
+            return WrapInDecoratorsFactory(factory);
+        }
+
+        public static IFactory CreateInstance(enumDatabaseInstance databaseInsanceOverride) {
+            Factory factory = new FactoryMain(databaseInsanceOverride);
+            return WrapInDecoratorsFactory(factory);
+        }
+
+        private static IFactory WrapInDecoratorsFactory(Factory factory) {
+            IFactory decoratoedFactory = new FactoryDecoratorDatabase(factory);
+            return decoratoedFactory;
+        }
     }
 
-    public abstract class FactoryDecorator {
+    public abstract class FactoryDecorator : IFactory {
         private IFactory _factory;
         public FactoryDecorator(IFactory factory) {
             _factory = factory;
@@ -58,6 +76,10 @@ namespace MScheduler_BusTier.Abstract {
 
         public virtual ISlotFiller CreateSlotFiller(int id) {
             return _factory.CreateSlotFiller(id);
+        }
+
+        public virtual IUser CreateUser() {
+            return _factory.CreateUser();
         }
     }
 }

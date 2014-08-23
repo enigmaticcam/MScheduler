@@ -38,19 +38,50 @@ namespace MScheduler_BusTier.Concrete {
         }
 
         public override IMeeting CreateMeeting() {
-            throw new NotImplementedException();
+            Meeting meeting = new MeetingImp();
+            return WrapInDecoratorsMeeting(meeting);
         }
 
         public override ISlot CreateSlot() {
-            throw new NotImplementedException();
+            Slot slot = new SlotImp();
+            return WrapInDecoratorsSlot(slot);
         }
 
         public override ISlotFiller CreateSlotFiller(int id) {
-            throw new NotImplementedException();
+            // To be implemented in database decorator
+            return null;
         }
 
         public override ITemplate CreateTemplate() {
             throw new NotImplementedException();
+        }
+
+        public override IUser CreateUser() {
+            User user = new User();
+            return WrapInDecoratorsUser(user);
+        }
+
+        private IMeeting WrapInDecoratorsMeeting(Meeting meeting) {
+            IMeeting decoratedMeeting = new MeetingDecoratorDatabase.Builder()
+                .SetConnection(this.CreateAppConnection(this.DefaultDatabaseInstance))
+                .SetFactory(this)
+                .SetMeeting(meeting)
+                .Build();
+            return decoratedMeeting;
+        }
+
+        private ISlot WrapInDecoratorsSlot(Slot slot) {
+            ISlot decoratedSlot = new SlotDecoratorDatabase.Builder()
+                .SetConnection(this.CreateAppConnection(this.DefaultDatabaseInstance))
+                .SetFactory(this)
+                .SetSlot(slot)
+                .Build();
+            return decoratedSlot;
+        }
+
+        private IUser WrapInDecoratorsUser(User user) {
+            IUser decoratoedUser = new UserDecoratorDatabase(user, this.CreateAppConnection(this.DefaultDatabaseInstance));
+            return decoratoedUser;
         }
     }
 }

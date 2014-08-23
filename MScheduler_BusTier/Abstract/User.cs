@@ -7,7 +7,11 @@ using System.Threading.Tasks;
 namespace MScheduler_BusTier.Abstract {
     public interface IUser {
         User.UserData Data { set; }
-        int Id { get; }        
+        int Id { get; }
+        int SlotFillerId { get; }
+        int SlotFillerSourceId { get; }
+        ISlotFiller AsSlotFiller { get; }
+        string Description { get; }
         string Name { get; }
         void LoadFromSource(int id);
         int SaveToSource();
@@ -26,6 +30,14 @@ namespace MScheduler_BusTier.Abstract {
 
         public int SlotFillerId {
             get { return _data.SlotFillerId; }
+        }
+
+        public int SlotFillerSourceId {
+            get { return _data.Id; }
+        }
+
+        public ISlotFiller AsSlotFiller {
+            get { return this; }
         }
 
         public string Name {
@@ -71,8 +83,24 @@ namespace MScheduler_BusTier.Abstract {
             get { return _user.Id; }
         }
 
+        public virtual int SlotFillerId {
+            get { return _user.SlotFillerId; }
+        }
+
+        public virtual int SlotFillerSourceId {
+            get { return _user.SlotFillerSourceId; }
+        }
+
+        public virtual ISlotFiller AsSlotFiller {
+            get { return _user.AsSlotFiller; }
+        }
+
         public virtual string Name {
             get { return _user.Name; }
+        }
+
+        public virtual string Description {
+            get { return _user.Description; }
         }
 
         public UserDecorator(IUser user) {

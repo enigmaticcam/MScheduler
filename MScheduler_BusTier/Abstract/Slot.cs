@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 namespace MScheduler_BusTier.Abstract {
     public interface ISlotFiller {
         int SlotFillerId { get; }
-        string Description { get; }        
+        int SlotFillerSourceId { get; }
+        string Description { get; }
     }
 
     public interface ISlot {

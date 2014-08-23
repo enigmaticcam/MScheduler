@@ -641,8 +641,9 @@ namespace MScheduler_BusTier.Abstract {
             }
 
             private void GenerateLoadSql() {
-                _sql.AppendLine("select * from " + _connection.DatabaseName + ".dbo.[User]");
-                _sql.AppendLine("where UserId = " + _userId);
+                _sql.AppendLine("select * from " + _connection.DatabaseName + ".dbo.[User] U");
+                _sql.AppendLine("left join " + _connection.DatabaseName + ".dbo.SlotFiller SL on SL.SlotFillerSourceId = U.UserId");
+                _sql.AppendLine("where U.UserId = " + _userId);
             }
 
             private void GetDataSetFromDatabase() {
@@ -720,18 +721,18 @@ namespace MScheduler_BusTier.Abstract {
             }
 
             private void GenerateTableSqlNew() {
-                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.SlotFiller(SlotTypeId)");
-                _sql.AppendLine("values(" + (int)Slot.enumSlotType.User);
-                _sql.AppendLine(")");
-                _sql.AppendLine("");
                 _sql.AppendLine("select @SlotFillerId = max(SlotFillerId) from " + _connection.DatabaseName + ".dbo.SlotFiller");
                 _sql.AppendLine("");
-                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.[User](SlotFillerId, Name)");
-                _sql.Append("values(@SlotFillerId");
-                _sql.Append(",'" + _connection.SqlSafe(_user.Name) + "'");
+                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.[User](Name)");
+                _sql.Append("values('" + _connection.SqlSafe(_user.Name) + "'");
                 _sql.AppendLine(")");
                 _sql.AppendLine("");
                 _sql.AppendLine("select @UserId = max(UserId) from " + _connection.DatabaseName + ".dbo.[User]");
+                _sql.AppendLine("");
+                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.SlotFiller(SlotTypeId, SlotFillerSourceId)");
+                _sql.Append("values(" + (int)Slot.enumSlotType.User);
+                _sql.Append(",@UserId");
+                _sql.AppendLine(")");
             }
 
             private void GenerateTableSqlExisting() {
@@ -764,6 +765,34 @@ namespace MScheduler_BusTier.Abstract {
         public UserDecoratorDatabase(IUser user, IConnectionControl connection) : base(user) {
             _user = user;
             _connection = connection;
+        }
+    }
+
+    public class FactoryDecoratorDatabase : FactoryDecorator {
+        private IFactory _factory;
+        private IConnectionControl _connection;
+
+        public override ISlotFiller CreateSlotFiller(int id) {
+            StringBuilder sql = new StringBuilder();
+            sql.AppendLine("select SlotTypeId, SlotFillerSourceId from " + _connection.DatabaseName + ".dbo.SlotFiller");
+            sql.AppendLine("where SlotFillerId = " + id);
+            DataSet ds = _connection.ExecuteDataSet(sql.ToString());
+            Slot.enumSlotType slotType = (Slot.enumSlotType)ds.Tables[0].Rows[0]["SlotTypeId"];
+            switch (slotType) {
+                case Slot.enumSlotType.User:
+                    IUser user = _factory.CreateUser();
+                    user.LoadFromSource((int)ds.Tables[0].Rows[0]["SlotFillerSourceId"]);
+                    return _factory.CreateUser().AsSlotFiller;
+                case Slot.enumSlotType.None:
+                    throw new Exception("Cannot cast 'None' to ISlotFiller interface");
+                default:
+                    throw new Exception(slotType.ToString() + " not implemeneted for FactoryDecoratorDatabase.CreateSlotFiller");
+            }
+        }
+
+        public FactoryDecoratorDatabase(IFactory factory) : base(factory) {
+            _factory = factory;
+            _connection = _factory.CreateAppConnection(_factory.DatabaseInstance);
         }
     }
 }

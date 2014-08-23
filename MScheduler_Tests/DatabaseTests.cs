@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MScheduler_BusTier.Abstract;
+using MScheduler_BusTier.Concrete;
 
 namespace MScheduler_Tests {
 
@@ -264,8 +265,39 @@ namespace MScheduler_Tests {
             // Assert
             Assert.AreEqual(userOld.Object.Description, userNew.Object.Description);
             Assert.AreEqual(userOld.Object.Name, userNew.Object.Name);
-            Assert.AreNotEqual(0, userNew.Object.SlotFillerId);
+            Assert.AreNotEqual(0, userNew.Object.SlotFillerId);            
+        }
+
+        [TestMethod]
+        public void DatabaseTests_FactoryReturnsSlotFiller() {
+
+            // Arrange
+            IConnectionControl connection = GetConnection();
+
+            User.UserData data = new User.UserData();
+            data.Name = "UserName";
+            Mock<User> user = new Mock<User>();
+            user.Object.Data = data;
+
+            UserDecoratorDatabase userDatabase = new UserDecoratorDatabase(user.Object, connection);
+
+            Mock<Factory> factory = new Mock<Factory>();
+            factory.Setup(f => f.CreateUser()).Returns(userDatabase);
+            factory.Setup(f => f.CreateAppConnection(It.IsAny<Factory.enumDatabaseInstance>())).Returns(connection);
+
+            PrepForTesting();
+            FactoryDecoratorDatabase database = new FactoryDecoratorDatabase(factory.Object);
             
+            // Act
+            PrepForTesting();
+            int userId = userDatabase.SaveToSource();
+            userDatabase = new UserDecoratorDatabase(new Mock<User>().Object, connection);
+            userDatabase.LoadFromSource(userId);
+            ISlotFiller slotFiller = database.CreateSlotFiller(userDatabase.SlotFillerId);
+
+            // Assert
+            Assert.AreEqual(slotFiller.SlotFillerId, userDatabase.SlotFillerId);
+            Assert.AreEqual(slotFiller.Description, userDatabase.Description);
         }
     }
 }
