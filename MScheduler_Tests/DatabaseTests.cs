@@ -301,5 +301,29 @@ namespace MScheduler_Tests {
             Assert.AreEqual(slotFiller.SlotFillerId, userDatabase.SlotFillerId);
             Assert.AreEqual(slotFiller.Description, userDatabase.Description);
         }
+
+        [TestMethod]
+        public void DatabaseTests_TemplateProperlySavesWithDefaults() {
+
+            // Arrange
+            IConnectionControl connection = GetConnection();
+            Mock<IFactory> factory = new Mock<IFactory>();
+
+            Template template = new Template(factory.Object);
+            TemplateDecoratorDatabase database = new TemplateDecoratorDatabase.Builder()
+                .SetConnection(connection)
+                .SetTemplate(template)
+                .Build();
+
+            // Act
+            PrepForTesting();
+            int templateId = database.SaveToSource();
+            database.LoadFromSource(templateId);
+
+            // Assert
+            Assert.AreNotEqual(database.Description, null);
+            Assert.AreNotEqual(database.Description, "");
+            
+        }
     }
 }

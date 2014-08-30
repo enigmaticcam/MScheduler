@@ -49,9 +49,6 @@
     <Compile Include="Abstract\User.cs" />
     <Compile Include="Concrete\EditTemplateView.cs" />
     <Compile Include="Concrete\FactoryMain.cs" />
-    <Compile Include="Concrete\MeetingImp.cs" />
-    <Compile Include="Concrete\SlotImp.cs" />
-    <Compile Include="Concrete\TemplateImp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

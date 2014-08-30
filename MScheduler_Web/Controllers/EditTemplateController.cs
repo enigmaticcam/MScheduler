@@ -13,6 +13,17 @@ namespace MScheduler_Web.Controllers {
             return View(viewState);
         }
 
+        public ActionResult CreateTemplate() {
+            ViewState viewState = GetViewState();
+            int templateId = viewState.CurrentEditTemplateView.CreateTemplate();
+            if (templateId == 0) {
+                this.DefaultServer.AddStatusMessage(TempData, "Could not create tempalte");
+                return RedirectToAction("Index");
+            } else {
+                return RedirectToAction("Index");
+            }
+        }
+
         private ViewState GetViewState(bool refresh = false) {
             ViewState viewState = (ViewState)Session["ViewState"];
             if (viewState == null || refresh) {

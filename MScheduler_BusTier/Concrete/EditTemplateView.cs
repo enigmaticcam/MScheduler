@@ -8,6 +8,7 @@ using MScheduler_BusTier.Abstract;
 namespace MScheduler_BusTier.Concrete {
     public interface IEditTemplateView {
         Dictionary<int, string> Templates { get; set; }
+        int CreateTemplate();
         void LoadFromSource();
     }
 
@@ -18,6 +19,13 @@ namespace MScheduler_BusTier.Concrete {
         public Dictionary<int, string> Templates {
             get { return _templates; }
             set { _templates = value; }
+        }
+
+        public int CreateTemplate() {
+            ITemplate template = _factory.CreateTemplate();
+            int templateId = template.SaveToSource();
+            _templates.Add(templateId, template.Description);
+            return templateId;
         }
 
         public void LoadFromSource() {
@@ -35,6 +43,10 @@ namespace MScheduler_BusTier.Concrete {
         public virtual Dictionary<int, string> Templates {
             get { return _templateView.Templates; }
             set { _templateView.Templates = value; }
+        }
+
+        public int CreateTemplate() {
+            return _templateView.CreateTemplate();
         }
 
         public virtual void LoadFromSource() {

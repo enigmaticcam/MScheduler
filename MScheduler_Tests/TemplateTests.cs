@@ -15,9 +15,9 @@ namespace MScheduler_Tests {
         public void TemplateTests_CarryAllAttributesFromTemplateSlotToSlot() {
 
             // Arrange
-            List<SlotImp> returnSlots = new List<SlotImp>();
-            returnSlots.Add(new SlotImp());
-            returnSlots.Add(new SlotImp());
+            List<Slot> returnSlots = new List<Slot>();
+            returnSlots.Add(new Slot());
+            returnSlots.Add(new Slot());
 
             int currentSlot = 0;
             Mock<IFactory> factory = new Mock<IFactory>();

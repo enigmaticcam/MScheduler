@@ -17,7 +17,7 @@ namespace MScheduler_BusTier.Abstract {
         int SaveToSource();
     }
 
-    public abstract class Template : ITemplate {
+    public class Template : ITemplate {
         private IFactory _factory;
 
         private TemplateData _templateData;
@@ -31,6 +31,7 @@ namespace MScheduler_BusTier.Abstract {
 
         public Template(IFactory factory) {
             _factory = factory;
+            CreateDefaults();
         }
 
         public int Id {
@@ -56,6 +57,12 @@ namespace MScheduler_BusTier.Abstract {
                 .SetTemplateSlots(_templateData.TemplateSlots)
                 .Build();
             return action.PerformAction();
+        }
+
+        private void CreateDefaults() {
+            _templateData = new TemplateData();
+            _templateData.Description = "New Template";
+            _templateData.TemplateSlots = new List<TemplateSlot>();
         }
 
         public void LoadFromSource(int id) {

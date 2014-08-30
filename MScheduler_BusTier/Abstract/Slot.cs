@@ -27,7 +27,7 @@ namespace MScheduler_BusTier.Abstract {
         int SaveToSource();
     }
 
-    public abstract class Slot : ISlot {
+    public class Slot : ISlot {
         private SlotData _slotData;
         protected SlotData PrivateData {
             get { return _slotData; }

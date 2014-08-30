@@ -10,6 +10,10 @@ namespace MScheduler_Web.Models {
     public class ViewState {
         private ViewStateData _data;
 
+        public IEditTemplateView CurrentEditTemplateView {
+            get { return _data.EditTemplateView; }
+        }
+
         public MvcHtmlString DisplayTemplateListAsLinks() {
             ViewControlListAsLinks control = new ViewControlListAsLinks();
             control.TextIfThereAreNoLinks = "There are no templates";

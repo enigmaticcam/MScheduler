@@ -15,7 +15,7 @@ namespace MScheduler_BusTier.Abstract {
         int SaveToSource();
     }
 
-    public abstract class Meeting : IMeeting {
+    public class Meeting : IMeeting {
         private MeetingData _meetingData;
         protected MeetingData PrivateData {
             get { return _meetingData; }

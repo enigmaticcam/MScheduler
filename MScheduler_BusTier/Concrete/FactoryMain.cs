@@ -38,12 +38,12 @@ namespace MScheduler_BusTier.Concrete {
         }
 
         public override IMeeting CreateMeeting() {
-            Meeting meeting = new MeetingImp();
+            Meeting meeting = new Meeting();
             return WrapInDecoratorsMeeting(meeting);
         }
 
         public override ISlot CreateSlot() {
-            Slot slot = new SlotImp();
+            Slot slot = new Slot();
             return WrapInDecoratorsSlot(slot);
         }
 
@@ -53,7 +53,7 @@ namespace MScheduler_BusTier.Concrete {
         }
 
         public override ITemplate CreateTemplate() {
-            Template template = new TemplateImp(this);
+            Template template = new Template(this);
             return WrapInDecoratorsTemplate(template);
         }
 
