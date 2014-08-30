@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using MScheduler_BusTier.Abstract;
+using MScheduler_BusTier.Concrete;
 
 namespace MScheduler_Web.Models {
     public class ViewState {
@@ -27,6 +28,16 @@ namespace MScheduler_Web.Models {
                     if (_viewBuilder == null)
                         _viewBuilder = new ViewBuilder();
                     return _viewBuilder;
+                }
+            }
+
+            private IEditTemplateView _editTemplateView;
+            public IEditTemplateView EditTemplateView {
+                get {
+                    if (_editTemplateView == null) {
+                        _editTemplateView = this.Factory.CreateEditTemplateView();
+                    }
+                    return _editTemplateView;
                 }
             }
         }

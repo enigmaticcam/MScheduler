@@ -10,6 +10,7 @@ namespace MScheduler_BusTier.Abstract {
         Template.TemplateData Data { set; }
         int Id { get; }
         string Description { get; }
+        bool IsDeleted { get; set; }
         IEnumerable<TemplateSlot> TemplateSlots { get; }
         List<ISlot> GenerateMeetingSlots();
         void LoadFromSource(int id);
@@ -38,6 +39,11 @@ namespace MScheduler_BusTier.Abstract {
 
         public string Description {
             get { return _templateData.Description; }
+        }
+
+        public bool IsDeleted {
+            get { return _templateData.IsDeleted; }
+            set { _templateData.IsDeleted = value; }
         }
 
         public IEnumerable<TemplateSlot> TemplateSlots {
@@ -125,6 +131,7 @@ namespace MScheduler_BusTier.Abstract {
         public class TemplateData {
             public int Id { get; set; }
             public string Description { get; set; }
+            public bool IsDeleted { get; set; }
             public List<TemplateSlot> TemplateSlots { get; set; }
         }        
     }
@@ -153,6 +160,11 @@ namespace MScheduler_BusTier.Abstract {
         
         public virtual string Description {
             get { return _template.Description; }
+        }
+
+        public virtual bool IsDeleted {
+            get { return _template.IsDeleted; }
+            set { _template.IsDeleted = value; }
         }
 
         public virtual IEnumerable<TemplateSlot> TemplateSlots {

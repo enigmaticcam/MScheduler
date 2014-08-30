@@ -213,6 +213,7 @@ namespace MScheduler_Tests {
             Template.TemplateData data = new Template.TemplateData();
             data.Description = "Description";
             data.TemplateSlots = slots;
+            data.IsDeleted = true;
 
             Mock<Template> templateOld = new Mock<Template>(factory.Object);
             templateOld.Object.Data = data;
@@ -233,6 +234,7 @@ namespace MScheduler_Tests {
 
             // Assert
             Assert.AreEqual(templateOld.Object.Description, templateNew.Object.Description);
+            Assert.AreEqual(templateOld.Object.IsDeleted, templateNew.Object.IsDeleted);
             Assert.AreEqual(templateOld.Object.TemplateSlots.Count(), templateNew.Object.TemplateSlots.Count());
             Assert.AreEqual(templateOld.Object.TemplateSlots.ElementAt(0).SlotType, templateNew.Object.TemplateSlots.ElementAt(0).SlotType);
             Assert.AreEqual(templateOld.Object.TemplateSlots.ElementAt(0).SortNumber, templateNew.Object.TemplateSlots.ElementAt(0).SortNumber);

@@ -15,6 +15,7 @@ namespace MScheduler_BusTier.Abstract {
         ITemplate CreateTemplate();
         ISlotFiller CreateSlotFiller(int id);
         IUser CreateUser();
+        IEditTemplateView CreateEditTemplateView();
     }
 
     public abstract class Factory : IFactory {
@@ -31,6 +32,7 @@ namespace MScheduler_BusTier.Abstract {
         public abstract ITemplate CreateTemplate();
         public abstract ISlotFiller CreateSlotFiller(int id);
         public abstract IUser CreateUser();
+        public abstract IEditTemplateView CreateEditTemplateView();
 
         public static IFactory CreateInstance() {
             Factory factory = new FactoryMain();
@@ -80,6 +82,10 @@ namespace MScheduler_BusTier.Abstract {
 
         public virtual IUser CreateUser() {
             return _factory.CreateUser();
+        }
+
+        public virtual IEditTemplateView CreateEditTemplateView() {
+            return _factory.CreateEditTemplateView();
         }
     }
 }

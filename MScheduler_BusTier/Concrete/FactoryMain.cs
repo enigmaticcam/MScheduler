@@ -62,6 +62,11 @@ namespace MScheduler_BusTier.Concrete {
             return WrapInDecoratorsUser(user);
         }
 
+        public override IEditTemplateView CreateEditTemplateView() {
+            EditTemplateView templateView = new EditTemplateView(this);
+            return WrapInDecoratorsEditTemplateView(templateView);
+        }
+
         private IMeeting WrapInDecoratorsMeeting(Meeting meeting) {
             IMeeting decoratedMeeting = new MeetingDecoratorDatabase.Builder()
                 .SetConnection(this.CreateAppConnection(this.DefaultDatabaseInstance))
@@ -91,6 +96,11 @@ namespace MScheduler_BusTier.Concrete {
                 .SetTemplate(template)
                 .Build();
             return decoratedTemplate;
+        }
+
+        private IEditTemplateView WrapInDecoratorsEditTemplateView(EditTemplateView templateView) {
+            IEditTemplateView decoratedTemplateView = new EditTemplateViewDecoratorDatabase(templateView, this.CreateAppConnection(this.DefaultDatabaseInstance));
+            return decoratedTemplateView;
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MScheduler_BusTier.Abstract;
+using MScheduler_BusTier.Concrete;
 
 namespace MScheduler_BusTier.Abstract {
 
@@ -448,7 +449,8 @@ namespace MScheduler_BusTier.Abstract {
 
             private void PopulateDataFromDataSet() {
                 _data.Id = _templateId;
-                _data.Description = GetValueFromDataSet("Description").ToString();                
+                _data.Description = GetValueFromDataSet("Description").ToString();
+                _data.IsDeleted = (bool)GetValueFromDataSet("IsDeleted");
             }
 
             private void PopulateTemplateSlots() {
@@ -459,7 +461,7 @@ namespace MScheduler_BusTier.Abstract {
                     slot.TemplateId = (int)dr["TemplateId"];
                     slot.SlotType = (Slot.enumSlotType)dr["SlotTypeId"];
                     slot.Title = dr["Title"].ToString();
-                    slot.SortNumber = (int)dr["SortNumber"];
+                    slot.SortNumber = (int)dr["SortNumber"];                    
                     slots.Add(slot);
                 }
                 _data.TemplateSlots = slots;
@@ -523,8 +525,9 @@ namespace MScheduler_BusTier.Abstract {
             }
 
             private void GenerateTableSqlNew() {
-                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.Template(Description)");
+                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.Template(Description, IsDeleted)");
                 _sql.Append("values('" + _connection.SqlSafe(_template.Description) + "'");
+                _sql.Append("," + (_template.IsDeleted ? "1" : "0"));
                 _sql.AppendLine(")");
                 _sql.AppendLine("");
                 _sql.AppendLine("select @TemplateId = max(TemplateId) from " + _connection.DatabaseName + ".dbo.Template");
@@ -534,6 +537,7 @@ namespace MScheduler_BusTier.Abstract {
                 _sql.AppendLine("");
                 _sql.AppendLine("update " + _connection.DatabaseName + ".dbo.Template");
                 _sql.AppendLine("set Description = '" + _connection.SqlSafe(_template.Description) + "'");
+                _sql.AppendLine(", IsDeleted = " + (_template.IsDeleted ? "1" : "0"));
                 _sql.AppendLine("where TemplateId = " + _template.Id);
                 _sql.AppendLine("");
                 _sql.AppendLine("set @TemplateId = " + _template.Id);
@@ -793,6 +797,27 @@ namespace MScheduler_BusTier.Abstract {
         public FactoryDecoratorDatabase(IFactory factory) : base(factory) {
             _factory = factory;
             _connection = _factory.CreateAppConnection(_factory.DatabaseInstance);
+        }
+    }
+
+    public class EditTemplateViewDecoratorDatabase : EditTemplateViewDecorator {
+        private IEditTemplateView _templateView;
+        private IConnectionControl _connection;
+
+        public override void LoadFromSource() {
+            Dictionary<int, string> templates = new Dictionary<int, string>();
+            StringBuilder sql = new StringBuilder();
+            sql.AppendLine("select * from " + _connection.DatabaseName + ".dbo.Template where IsDeleted = 0");
+            DataSet ds = _connection.ExecuteDataSet(sql.ToString());
+            foreach (DataRow dr in ds.Tables[0].Rows) {
+                templates.Add((int)dr["TemplateId"], dr["Description"].ToString());
+            }
+            _templateView.Templates = templates;
+        }
+
+        public EditTemplateViewDecoratorDatabase(IEditTemplateView templateView, IConnectionControl connection) : base(templateView) {
+            _templateView = templateView;
+            _connection = connection;
         }
     }
 }
