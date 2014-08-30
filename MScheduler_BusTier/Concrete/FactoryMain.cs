@@ -9,7 +9,7 @@ namespace MScheduler_BusTier.Concrete {
     public class FactoryMain : Factory {
 
         private enumDatabaseInstance DefaultDatabaseInstance {
-            get { return enumDatabaseInstance.Development; }
+            get { return enumDatabaseInstance.LocalDB; }
         }
 
         public FactoryMain() {
@@ -29,7 +29,7 @@ namespace MScheduler_BusTier.Concrete {
             IConnectionControl connection;
             switch (version) {
                 case enumDatabaseInstance.LocalDB:
-                    connection = new ConnectionControl("MScheduler", "Server=(localdb)\\v11.0;Integrated Security=true;initial catalog=DynamicETL;");
+                    connection = new ConnectionControl("MScheduler", "Server=(localdb)\\v11.0;Integrated Security=true;initial catalog=MScheduler;");
                     break;
                 default:
                     throw new Exception("Database Instance Connection not implemented");

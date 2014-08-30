@@ -12,6 +12,10 @@ namespace MScheduler_Web.Models {
         private ViewDataDictionary _viewDataDictionary;
         private TempDataDictionary _tempDataDictionary;
 
+        public MvcHtmlString DisplayViewControlListAsLinks(ViewControlListAsLinks control) {
+            return RenderViewToString("ListAsLinks", control);
+        }
+
         private MvcHtmlString RenderViewToString(string viewName) {
             return RenderViewToString(viewName, null);
         }

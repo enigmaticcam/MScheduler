@@ -10,6 +10,15 @@ namespace MScheduler_Web.Models {
     public class ViewState {
         private ViewStateData _data;
 
+        public MvcHtmlString DisplayTemplateListAsLinks() {
+            ViewControlListAsLinks control = new ViewControlListAsLinks();
+            control.TextIfThereAreNoLinks = "There are no templates";
+            foreach (int templateId in _data.EditTemplateView.Templates.Keys) {
+                control.AddLink(_data.EditTemplateView.Templates[templateId], "Action", "Control");
+            }
+            return _data.ViewBuilder.DisplayViewControlListAsLinks(control);
+        }
+
         public void SetControllerContext(ControllerContext controllerContext, ViewDataDictionary viewDataDictionary, TempDataDictionary tempDataDictionary) {
             _data.ViewBuilder.SetControllerContext(controllerContext, viewDataDictionary, tempDataDictionary);
         }
@@ -36,6 +45,7 @@ namespace MScheduler_Web.Models {
                 get {
                     if (_editTemplateView == null) {
                         _editTemplateView = this.Factory.CreateEditTemplateView();
+                        _editTemplateView.LoadFromSource();
                     }
                     return _editTemplateView;
                 }
