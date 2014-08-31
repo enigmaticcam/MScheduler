@@ -32,6 +32,39 @@ namespace MScheduler_Web.Models {
             return _data.ViewBuilder.DisplayTemplateProperties(_data.EditTemplateView.DataBaton);
         }
 
+        public MvcHtmlString DisplayTemplateSlotSelector() {
+            ViewControlDropDownList control = new ViewControlDropDownList();
+            control.Text = "Template Slots";
+            control.HtmlId = "TemplateSlotSelectorId";
+            control.TextIfThereAreNoItems = "No Slots have yet been created";
+            control.Items = ConvertListToSelectListItem<TemplateSlot>(_data.EditTemplateView.Slots, "Id", "Title", _data.EditTemplateView.CurrentSlotId);
+            return _data.ViewBuilder.DisplayViewControlDropDownList(control);
+        }
+
+        private List<SelectListItem> ConvertListToSelectListItem<T>(List<T> list, string keyPropertyName, string textPropertyName, int selected) {
+            List<SelectListItem> items = new List<SelectListItem>();
+            foreach (T item in list) {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Text = item.GetType().GetProperty(textPropertyName).GetValue(item, null).ToString();
+                selectItem.Value = item.GetType().GetProperty(keyPropertyName).GetValue(item, null).ToString();
+                selectItem.Selected = (selected.ToString() == selectItem.Value);
+                items.Add(selectItem);
+            }
+            return items;
+        }
+
+        private List<SelectListItem> ConvertDictionaryToSelectListItem(Dictionary<int, string> list, int selected) {
+            List<SelectListItem> items = new List<SelectListItem>();
+            foreach (int key in list.Keys) {
+                SelectListItem item = new SelectListItem();
+                item.Text = list[key];
+                item.Value = key.ToString();
+                item.Selected = (selected == key);
+                items.Add(item);
+            }
+            return items;
+        }
+
         public void SetControllerContext(ControllerContext controllerContext, ViewDataDictionary viewDataDictionary, TempDataDictionary tempDataDictionary) {
             _data.ViewBuilder.SetControllerContext(controllerContext, viewDataDictionary, tempDataDictionary);
         }

@@ -18,11 +18,15 @@ namespace MScheduler_Web.Models {
         }
 
         public MvcHtmlString DisplayViewControlListAsLinks(ViewControlListAsLinks control) {
-            return RenderViewToString("ListAsLinks", control);
+            return RenderViewToString("ViewControlListAsLinks", control);
         }
 
         public MvcHtmlString DisplayTemplateProperties(EditTemplateView.Baton baton) {
             return RenderViewToString("TemplateProperties", baton);
+        }
+
+        public MvcHtmlString DisplayViewControlDropDownList(ViewControlDropDownList control) {
+            return RenderViewToString("ViewControlDropDownList", control);
         }
 
         private MvcHtmlString RenderViewToString(string viewName) {
