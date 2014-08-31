@@ -1,6 +1,9 @@
 ﻿@using MScheduler_Web.Models
 @model ViewState
 
-@Model.DisplayTemplateListAsLinks()
+<button class="btn btn-primary btn-sm" onclick="location.href='/EditTemplate/Refresh'">Refresh</button>
+<button class="btn btn-primary btn-sm" onclick="location.href='/EditTemplate/CreateTemplate'">New Template</button>
 <br />
-<button class="btn btm-primary" onclick="location.href='/EditTemplate/CreateTemplate'">New Template</button>
+<br />
+@Model.DisplayTemplateListAsLinks()
+

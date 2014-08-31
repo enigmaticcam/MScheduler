@@ -5,15 +5,24 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using MScheduler_BusTier.Concrete;
 
 namespace MScheduler_Web.Models {
     public class ViewBuilder {
         private ControllerContext _controllerContext;
         private ViewDataDictionary _viewDataDictionary;
+
         private TempDataDictionary _tempDataDictionary;
+        public TempDataDictionary TempDataDictionary {
+            get { return _tempDataDictionary; }
+        }
 
         public MvcHtmlString DisplayViewControlListAsLinks(ViewControlListAsLinks control) {
             return RenderViewToString("ListAsLinks", control);
+        }
+
+        public MvcHtmlString DisplayTemplateProperties(EditTemplateView.Baton baton) {
+            return RenderViewToString("TemplateProperties", baton);
         }
 
         private MvcHtmlString RenderViewToString(string viewName) {

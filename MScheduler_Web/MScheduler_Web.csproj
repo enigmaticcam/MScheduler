@@ -172,6 +172,8 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\bootstrap-theme.css" />
+    <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="favicon.ico" />
@@ -212,8 +214,10 @@
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Manage.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
-    <Content Include="Views\Controls\ListAsLinks.cshtml" />
     <Content Include="Views\EditTemplate\Index.cshtml" />
+    <Content Include="Views\Controls\ListAsLinks.cshtml" />
+    <Content Include="Views\Controls\TemplateProperties.cshtml" />
+    <Content Include="Views\EditTemplate\Template.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

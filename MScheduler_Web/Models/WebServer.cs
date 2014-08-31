@@ -7,7 +7,7 @@ using System.Web.Mvc;
 namespace MScheduler_Web.Models {
     public interface IWebServer {
         void AddStatusMessage(TempDataDictionary tempData, string message);
-        string GetStatusMessage(TempDataDictionary tempData);
+        MvcHtmlString GetStatusMessage(TempDataDictionary tempData);
     }
 
     public class WebServer : IWebServer {
@@ -16,14 +16,18 @@ namespace MScheduler_Web.Models {
         }
 
         public void AddStatusMessage(TempDataDictionary tempData, string message) {
-            tempData.Add(enumTempData.StatusMessage.ToString(), message);
+            if (tempData.ContainsKey(enumTempData.StatusMessage.ToString())) {
+                tempData[enumTempData.StatusMessage.ToString()] += "<br />" + message;
+            } else {
+                tempData.Add(enumTempData.StatusMessage.ToString(), message);
+            }
         }
 
-        public string GetStatusMessage(TempDataDictionary tempData) {
+        public MvcHtmlString GetStatusMessage(TempDataDictionary tempData) {
             if (tempData.ContainsKey(enumTempData.StatusMessage.ToString())) {
-                return tempData[enumTempData.StatusMessage.ToString()].ToString();
+                return new MvcHtmlString(tempData[enumTempData.StatusMessage.ToString()].ToString());
             } else {
-                return "";
+                return new MvcHtmlString("");
             }
         }
     }
@@ -35,7 +39,7 @@ namespace MScheduler_Web.Models {
             _server.AddStatusMessage(tempData, message);
         }
 
-        public virtual string GetStatusMessage(TempDataDictionary tempData) {
+        public virtual MvcHtmlString GetStatusMessage(TempDataDictionary tempData) {
             return _server.GetStatusMessage(tempData);
         }
 

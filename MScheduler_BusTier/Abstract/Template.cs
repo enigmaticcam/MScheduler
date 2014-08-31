@@ -7,7 +7,7 @@ using MScheduler_BusTier.Abstract;
 
 namespace MScheduler_BusTier.Abstract {
     public interface ITemplate {
-        Template.TemplateData Data { set; }
+        Template.TemplateData Data { get; set; }
         int Id { get; }
         string Description { get; }
         bool IsDeleted { get; set; }
@@ -21,11 +21,8 @@ namespace MScheduler_BusTier.Abstract {
         private IFactory _factory;
 
         private TemplateData _templateData;
-        protected TemplateData PrivateData {
-            get { return _templateData; }
-            set { _templateData = value; }
-        }
         public TemplateData Data {
+            get { return _templateData; }
             set { _templateData = value; }
         }
 
@@ -158,6 +155,7 @@ namespace MScheduler_BusTier.Abstract {
         }
 
         public virtual Template.TemplateData Data {
+            get { return _template.Data; }
             set { _template.Data = value; }
         }
 

@@ -1,0 +1,24 @@
+﻿@using MScheduler_Web.Models
+@model ViewState
+
+@section StatusMessage {
+    <div class="statusMessage">@Model.StatusMessage()</div>
+}
+
+<button class="btn btn-primary btn-sm" onclick="location.href='/EditTemplate/RefreshWithId/@Model.CurrentEditTemplateView.Id'">Refresh</button>
+@if (Model.CurrentEditTemplateView.HasChanged) {
+    <button class="btn btn-success btn-sm" onclick="location.href = '/EditTemplate/Save/@Model.CurrentEditTemplateView.Id'">Save</button>
+}
+@if (Model.CurrentEditTemplateView.IsDeleted) {
+    <button class="btn btn-danger btn-sm" onclick="location.href='/EditTemplate/Delete/@Model.CurrentEditTemplateView.Id'">Undelete</button>
+} else {
+    <button class="btn btn-danger btn-sm" onclick="location.href='/EditTemplate/Delete/@Model.CurrentEditTemplateView.Id'">Delete</button>
+}
+
+<br />
+<br />
+<div class="panel panel-default">
+    <div class="panel-body">
+        @Model.DisplayTemplateProperties()
+    </div>
+</div>
