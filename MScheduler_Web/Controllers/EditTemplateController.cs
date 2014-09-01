@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using MScheduler_Web.Models;
+using MScheduler_BusTier.Abstract;
 using MScheduler_BusTier.Concrete;
 
 namespace MScheduler_Web.Controllers {
@@ -71,6 +72,32 @@ namespace MScheduler_Web.Controllers {
         public ActionResult Refresh() {
             ViewState viewState = GetViewState(true);
             return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [MultipleButton(Name = "TemplateSlotTable", Argument = "AddSlot")]
+        public ActionResult AddSlot(BatonTemplateSlots baton) {
+            ViewState viewState = GetViewState();
+            if (baton.TemplateSlots != null) {
+                viewState.CurrentEditTemplateView.NewSlot(baton.TemplateId, baton.Export());
+            } else {
+                viewState.CurrentEditTemplateView.NewSlot(baton.TemplateId, null);
+            }
+            if (viewState.CurrentEditTemplateView.Message.Length > 0) {
+                this.DefaultServer.AddStatusMessage(TempData, viewState.CurrentEditTemplateView.Message);
+            }
+            return RedirectToAction("Template", new { id = baton.TemplateId });
+        }
+
+        [HttpPost]
+        [MultipleButton(Name = "TemplateSlotTable", Argument = "Update")]
+        public ActionResult Update(BatonTemplateSlots baton) {
+            ViewState viewState = GetViewState();
+            viewState.CurrentEditTemplateView.Slots = baton.Export();
+            if (viewState.CurrentEditTemplateView.Message.Length > 0) {
+                this.DefaultServer.AddStatusMessage(TempData, viewState.CurrentEditTemplateView.Message);
+            }
+            return RedirectToAction("Template", new { id = baton.TemplateId });
         }
 
         private ViewState GetViewState(bool refresh = false) {

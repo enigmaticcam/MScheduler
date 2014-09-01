@@ -164,6 +164,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\MultiButton.cs" />
     <Compile Include="Models\ViewBuilder.cs" />
     <Compile Include="Models\ViewControls.cs" />
     <Compile Include="Models\ViewState.cs" />
@@ -219,6 +220,8 @@
     <Content Include="Views\Controls\TemplateProperties.cshtml" />
     <Content Include="Views\EditTemplate\Template.cshtml" />
     <Content Include="Views\Controls\ViewControlDropDownList.cshtml" />
+    <Content Include="Views\Controls\TemplateSlotTable.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\TemplateSlots.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

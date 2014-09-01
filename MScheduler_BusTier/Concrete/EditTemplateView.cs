@@ -9,7 +9,7 @@ namespace MScheduler_BusTier.Concrete {
     public interface IEditTemplateView {
         Dictionary<int, string> Templates { get; set; }
         EditTemplateView.Baton DataBaton { get; set; }
-        List<TemplateSlot> Slots { get; }
+        List<TemplateSlot> Slots { get; set; }
         int Id { get; }
         bool IsDeleted { get; }
         bool HasChanged { get; set; }
@@ -20,6 +20,7 @@ namespace MScheduler_BusTier.Concrete {
         void Save();
         void Delete(int id);        
         void LoadFromSource();
+        void NewSlot(int id, List<TemplateSlot> slots);
     }
 
     public class EditTemplateView : IEditTemplateView {
@@ -53,6 +54,7 @@ namespace MScheduler_BusTier.Concrete {
 
         public List<TemplateSlot> Slots {
             get { return _data.TemplateSlots; }
+            set { _data.TemplateSlots = value; }
         }
 
         public int Id {
@@ -127,6 +129,20 @@ namespace MScheduler_BusTier.Concrete {
             }
         }
 
+        public void NewSlot(int id, List<TemplateSlot> slots) {
+            _message = "";
+            if (_data.Id != id) {
+                _message = "Template " + id + " has not been set";
+            } else {
+                _data.TemplateSlots = slots;
+                if (_data.TemplateSlots == null) {
+                    _data.TemplateSlots = new List<TemplateSlot>();
+                }
+                _data.TemplateSlots.Add(new TemplateSlot());
+                _hasChanged = true;
+            }
+        }
+
         public void LoadFromSource() {
             // To be implemented by decorators
         }
@@ -138,6 +154,14 @@ namespace MScheduler_BusTier.Concrete {
         public class Baton {
             public int Id { get; set; }
             public string Description { get; set; }
+        }
+
+        public class BatonTemplateSlot {
+            public int Id { get; set; }
+            public int TemplateId { get; set; }
+            public int SlotTypeId { get; set; }
+            public string Title { get; set; }
+            public int SortNumber { get; set; }
         }
     }
 
@@ -156,6 +180,7 @@ namespace MScheduler_BusTier.Concrete {
 
         public virtual List<TemplateSlot> Slots {
             get { return _templateView.Slots; }
+            set { _templateView.Slots = value; }
         }
 
         public virtual int Id {
@@ -199,6 +224,10 @@ namespace MScheduler_BusTier.Concrete {
 
         public virtual void LoadFromSource() {
             _templateView.LoadFromSource();
+        }
+
+        public virtual void NewSlot(int id, List<TemplateSlot> slots) {
+            _templateView.NewSlot(id, slots);
         }
 
         public EditTemplateViewDecorator(IEditTemplateView templateView) {

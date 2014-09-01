@@ -29,6 +29,10 @@ namespace MScheduler_Web.Models {
             return RenderViewToString("ViewControlDropDownList", control);
         }
 
+        public MvcHtmlString DisplayTemplateSlotTable(BatonTemplateSlots baton) {
+            return RenderViewToString("TemplateSlotTable", baton);
+        }
+
         private MvcHtmlString RenderViewToString(string viewName) {
             return RenderViewToString(viewName, null);
         }

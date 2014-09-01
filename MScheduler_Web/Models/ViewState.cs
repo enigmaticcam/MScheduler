@@ -41,6 +41,39 @@ namespace MScheduler_Web.Models {
             return _data.ViewBuilder.DisplayViewControlDropDownList(control);
         }
 
+        public MvcHtmlString DisplayTemplateSlotTable() {
+            List<BatonTemplateSlots> batons = new List<BatonTemplateSlots>();
+            List<SelectListItem> slotTypes = ConvertEnumToSelectList<Slot.enumSlotType>((int)Slot.enumSlotType.User);
+            List<BatonTemplateSlot> slots = new List<BatonTemplateSlot>();
+            foreach (TemplateSlot slot in _data.EditTemplateView.Slots) {
+                BatonTemplateSlot batonSlot = new BatonTemplateSlot();
+                batonSlot.Import(slot);
+                batonSlot.SlotTypes = slotTypes;
+                slots.Add(batonSlot);
+            }            
+            BatonTemplateSlots baton = new BatonTemplateSlots();
+            baton.TemplateId = _data.EditTemplateView.Id;
+            baton.SlotTypes = slotTypes;
+            baton.TemplateSlots = slots;
+            return _data.ViewBuilder.DisplayTemplateSlotTable(baton);
+        }
+
+        private List<SelectListItem> ConvertEnumToSelectList<TEnum>(int selectedValue) {
+            List<SelectListItem> items = new List<SelectListItem>();
+            string[] keys = Enum.GetNames(typeof(TEnum));
+            Array values = Enum.GetValues(typeof(TEnum));
+            for (int i = 0; i <= keys.GetUpperBound(0); i++) {
+                SelectListItem item = new SelectListItem();
+                item.Text = keys[i];
+                item.Value = ((int)values.GetValue(i)).ToString();
+                if ((int)values.GetValue(i) == selectedValue) {
+                    item.Selected = true;
+                }
+                items.Add(item);
+            }
+            return items;
+        }
+
         private List<SelectListItem> ConvertListToSelectListItem<T>(List<T> list, string keyPropertyName, string textPropertyName, int selected) {
             List<SelectListItem> items = new List<SelectListItem>();
             foreach (T item in list) {
