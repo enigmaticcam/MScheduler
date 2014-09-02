@@ -1,0 +1,24 @@
+﻿@using MScheduler_Web.Models
+@model List<BatonTemplateSlot>
+
+@if (Model != null && Model.Count > 0) {
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Title</th>
+                <th>Sort Number</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count; i++) {
+                @Html.HiddenFor(m => m[i].TemplateId)
+                <tr>
+                    <td>@Html.DropDownListFor(m => m[i].SlotTypeId, Model[i].SlotTypes)</td>
+                    <td>@Html.TextBoxFor(m => m[i].Title)</td>                    
+                    <td>@Html.TextBoxFor(m => m[i].SortNumber)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

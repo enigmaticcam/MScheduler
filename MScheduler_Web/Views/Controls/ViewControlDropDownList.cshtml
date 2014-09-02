@@ -1,0 +1,8 @@
+﻿@using MScheduler_Web.Models
+@model ViewControlDropDownList
+
+@if (Model.Items.Count > 0) {
+    @Html.DropDownList(Model.Text, Model.Items, new { @id = Model.HtmlId })
+} else {
+    @Html.DisplayTextFor(m => m.TextIfThereAreNoItems)
+}

@@ -43,7 +43,11 @@ namespace MScheduler_BusTier.Abstract {
         }
 
         public string SqlSafe(string sql) {
-            return sql.Replace("'", "''");
+            if (sql != null) {
+                return sql.Replace("'", "''");
+            } else {
+                return "";
+            }            
         }
 
         public string GenerateSqlTryWithTransactionOpen() {

@@ -37,7 +37,6 @@ namespace MScheduler_Web.Models {
     }
 
     public class BatonTemplateSlots {
-        public List<SelectListItem> SlotTypes { get; set; }
         public int TemplateId { get; set; }
 
         public List<BatonTemplateSlot> TemplateSlots { get; set; }
@@ -54,11 +53,25 @@ namespace MScheduler_Web.Models {
         public int SlotTypeId { get; set; }
         public string Title { get; set; }
         public int SortNumber { get; set; }
-        public List<SelectListItem> SlotTypes { get; set; }
+        public IEnumerable<SelectListItem> SlotTypes {
+            get {
+                foreach (Slot.enumSlotType slotType in Enum.GetValues(typeof(Slot.enumSlotType))) {
+                    if (slotType != Slot.enumSlotType.None) {
+                        SelectListItem item = new SelectListItem();
+                        item.Text = slotType.ToString();
+                        item.Value = ((int)slotType).ToString();
+                        if ((Slot.enumSlotType)this.SlotTypeId == slotType) {
+                            item.Selected = true;
+                        }
+                        yield return item;
+                    }                    
+                }
+            }
+        }
 
         public void Import(TemplateSlot templateSlot) {
             this.Id = templateSlot.Id;
-            this.TemplateId = templateSlot.Id;
+            this.TemplateId = templateSlot.TemplateId;
             this.SlotTypeId = (int)templateSlot.SlotType;
             this.Title = templateSlot.Title;
             this.SortNumber = templateSlot.SortNumber;            

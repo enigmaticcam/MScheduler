@@ -53,8 +53,13 @@ namespace MScheduler_BusTier.Concrete {
         }
 
         public List<TemplateSlot> Slots {
-            get { return _data.TemplateSlots; }
-            set { _data.TemplateSlots = value; }
+            get {
+                return _data.TemplateSlots.OrderBy(s => s.SortNumber).ToList(); 
+            }
+            set { 
+                _data.TemplateSlots = value;
+                _hasChanged = true;
+            }
         }
 
         public int Id {
@@ -138,7 +143,9 @@ namespace MScheduler_BusTier.Concrete {
                 if (_data.TemplateSlots == null) {
                     _data.TemplateSlots = new List<TemplateSlot>();
                 }
-                _data.TemplateSlots.Add(new TemplateSlot());
+                TemplateSlot slot = new TemplateSlot();
+                slot.TemplateId = _data.Id;
+                _data.TemplateSlots.Add(slot);
                 _hasChanged = true;
             }
         }
