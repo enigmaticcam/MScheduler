@@ -67,6 +67,11 @@ namespace MScheduler_BusTier.Concrete {
             return WrapInDecoratorsEditTemplateView(templateView);
         }
 
+        public override IEditMeetingView CreateEditMeetingView() {
+            EditMeetingView meetingView = new EditMeetingView();
+            return meetingView;
+        }
+
         private IMeeting WrapInDecoratorsMeeting(Meeting meeting) {
             IMeeting decoratedMeeting = new MeetingDecoratorDatabase.Builder()
                 .SetConnection(this.CreateAppConnection(this.DefaultDatabaseInstance))
