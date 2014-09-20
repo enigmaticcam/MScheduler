@@ -1,19 +1,26 @@
-﻿@using MScheduler_BusTier.Concrete
-@model EditMeetingView.MonthWithMeetings
+﻿@using MScheduler_Web.Models
+@model BatonCalendar
 
-@Html.EditorForModel("MonthSelector")
+@Html.EditorFor(m => m.MonthsForMeetings, "MonthSelector")
 <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("AddMonthWithOffset", "EditMeeting", new { offset = 1 })'">@Html.Raw("->")</button>
-<div class="CalTitle">@Model.MonthName</div>
+<div class="CalTitle">@Model.MonthsForMeetings.MonthName</div>
 <table border="1" class="Cal">
     <tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr>
-    @for (int week = 0; week < 6; week++) { 
-        if (week < 5 || @Model.MonthDays[week * 7] != null) {
+    @for (int week = 0; week < 6; week++) {
+        if (week < 5 || @Model.MonthsForMeetings.MonthDays[week * 7] != null) {
             <tr>
             @for (int day = (week * 7); day < (week * 7) + 7; day++) {
                 <td>
-                    @if (Model.MonthDays[day] != null) {
-                        <span>@Model.MonthDays[day]</span>
+                    @if (Model.MonthsForMeetings.MonthDays[day] != null) {
+                        <span>@Model.MonthsForMeetings.MonthDays[day]</span>
                         <button type="button" class="btn btn-xs btn-default CalPlusButton" onclick="location.href='@Url.Action("CreateMeetingConfirm", "EditMeeting", new { dayOffset = day - 1 })'">+</button>
+                        if (Model.MeetingsForMonth.MeetingForDay(day) != null) {
+                            <div class="MeetingLinstInCalendar">
+                                @foreach (int meetingId in Model.MeetingsForMonth.MeetingForDay(day)) {
+                                    @Html.ActionLink(Model.MeetingsForMonth.MeetingName(meetingId), "Meeting", new { id = meetingId })<br />
+                                }
+                            </div>
+                        }
                     }
                 </td>
             }

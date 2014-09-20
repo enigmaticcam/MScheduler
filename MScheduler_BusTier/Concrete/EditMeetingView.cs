@@ -15,9 +15,11 @@ namespace MScheduler_BusTier.Concrete {
         DateTime CurrentMonth { get; set; }
         int CurrentDay { get; set; }
         bool HasChanged { get; }
-        EditMeetingView.MonthWithMeetings BatonMonth { get; }
+        EditMeetingView.MonthsWithMeetings BatonMonths { get; }
+        EditMeetingView.MeetingsForMonth BatonMeetings { get; }
         EditMeetingView.CreateMeeting BatonCreateMeeting { get; set; }
         Dictionary<int, string> Templates { get; set; }
+        Dictionary<int, string> Meetings { get; set; }
         void SetMeeting(int id);
         void LoadFromSource();
     }
@@ -55,9 +57,9 @@ namespace MScheduler_BusTier.Concrete {
             get { return _hasChanged; }
         }
 
-        public EditMeetingView.MonthWithMeetings BatonMonth {
+        public EditMeetingView.MonthsWithMeetings BatonMonths {
             get {
-                MonthWithMeetings month = new MonthWithMeetings(_currentMonth);
+                MonthsWithMeetings month = new MonthsWithMeetings(_currentMonth);
                 return month;
             }
         }
@@ -91,10 +93,20 @@ namespace MScheduler_BusTier.Concrete {
             }
         }
 
+        public EditMeetingView.MeetingsForMonth BatonMeetings {
+            get { return null; }
+        }
+
         private Dictionary<int, string> _templates;
         public Dictionary<int, string> Templates {
             get { return _templates; }
             set { _templates = value; }
+        }
+
+        private Dictionary<int, string> _meetings;
+        public Dictionary<int, string> Meetings {
+            get { return _meetings; }
+            set { _meetings = value; }
         }
 
         public void SetMeeting(int id) {
@@ -115,13 +127,13 @@ namespace MScheduler_BusTier.Concrete {
             _factory = factory;
         }
 
-        public class MonthWithMeetings {
+        public class MonthsWithMeetings {
             private DateTime _date;
             public string MonthName { get; set; }
             public List<ExtraMonth> ExtraMonths { get; set; }
             public string[] MonthDays { get; set; }
 
-            public MonthWithMeetings(DateTime date) {
+            public MonthsWithMeetings(DateTime date) {
                 _date = date;
                 this.MonthName = YearMonthFromDate(_date);
                 PopulateMonthDays();
@@ -190,6 +202,30 @@ namespace MScheduler_BusTier.Concrete {
             public string Description { get; set; }
             public DateTime Date { get; set; }
         }
+
+        public class MeetingsForMonth {
+            private Dictionary<int, List<int>> _meetingDates = new Dictionary<int, List<int>>();
+            public IEnumerable<int> MeetingForDay(int day) {
+                if (_meetingDates.ContainsKey(day)) {
+                    return _meetingDates[day];
+                } else {
+                    return null;
+                }
+            }
+
+            private Dictionary<int, string> _meetingNames = new Dictionary<int, string>();
+            public string MeetingName(int meetingId) {
+                return _meetingNames[meetingId];
+            }
+
+            public void AddMeeting(int meetingId, int dayOfMonth, string meetingName) {
+                if (!_meetingDates.ContainsKey(dayOfMonth)) {
+                    _meetingDates.Add(dayOfMonth, new List<int>());
+                }
+                _meetingDates[dayOfMonth].Add(meetingId);
+                _meetingNames.Add(meetingId, meetingName);
+            }
+        }
     }
 
     public abstract class EditMeetingViewDecorator : IEditMeetingView {
@@ -226,13 +262,22 @@ namespace MScheduler_BusTier.Concrete {
             set { _meeting.Templates = value; }
         }
 
-        public virtual EditMeetingView.MonthWithMeetings BatonMonth {
-            get { return _meeting.BatonMonth; }
+        public virtual Dictionary<int, string> Meetings {
+            get { return _meeting.Meetings; }
+            set { _meeting.Meetings = value; }
+        }
+
+        public virtual EditMeetingView.MonthsWithMeetings BatonMonths {
+            get { return _meeting.BatonMonths; }
         }
 
         public virtual EditMeetingView.CreateMeeting BatonCreateMeeting {
             get { return _meeting.BatonCreateMeeting; }
             set { _meeting.BatonCreateMeeting = value; }
+        }
+
+        public virtual EditMeetingView.MeetingsForMonth BatonMeetings {
+            get { return _meeting.BatonMeetings; }
         }
 
         public virtual void SetMeeting(int id) {

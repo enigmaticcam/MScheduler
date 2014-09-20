@@ -60,7 +60,10 @@ namespace MScheduler_Web.Models {
         }
 
         public MvcHtmlString DisplayMeetingCalendar() {
-            return _data.ViewBuilder.DisplayMeetingCalendar(_data.EditMeetingView.BatonMonth);
+            BatonCalendar baton = new BatonCalendar();
+            baton.MonthsForMeetings = _data.EditMeetingView.BatonMonths;
+            baton.MeetingsForMonth = _data.EditMeetingView.BatonMeetings;
+            return _data.ViewBuilder.DisplayMeetingCalendar(baton);
         }
 
         public MvcHtmlString DisplayCreateMeeting() {

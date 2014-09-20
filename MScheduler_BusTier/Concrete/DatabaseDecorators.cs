@@ -825,9 +825,21 @@ namespace MScheduler_BusTier.Abstract {
     public class EditMeetingViewDecoratorDatabase : EditMeetingViewDecorator {
         private IEditMeetingView _meeting;
         private IConnectionControl _connection;
+        private DateTime _currentMonth;
+        private EditMeetingView.MeetingsForMonth _meetingsForMonth;
 
         public override void LoadFromSource() {
             LoadTemplates();
+        }
+
+        public override EditMeetingView.MeetingsForMonth BatonMeetings {
+            get {
+                if (_meeting.CurrentMonth != _currentMonth) {
+                    LoadMeetings();
+                    _currentMonth = _meeting.CurrentMonth;
+                }
+                return _meetingsForMonth;
+            }
         }
 
         private void LoadTemplates() {
@@ -841,8 +853,23 @@ namespace MScheduler_BusTier.Abstract {
             _meeting.Templates = templates;
         }
 
-        public EditMeetingViewDecoratorDatabase(IEditMeetingView meeting, IConnectionControl connection)
-            : base(meeting) {
+        private void LoadMeetings() {
+            EditMeetingView.MeetingsForMonth meetings = new EditMeetingView.MeetingsForMonth();
+            StringBuilder sql = new StringBuilder();
+            sql.AppendLine("select * from " + _connection.DatabaseName + ".dbo.Meeting");
+            sql.AppendLine("where year(MeetingDate) = year('" + _meeting.CurrentMonth.ToShortDateString() + "')");
+            sql.AppendLine("and month(MeetingDate) = month('" + _meeting.CurrentMonth.ToShortDateString() + "')");
+            DataSet ds = _connection.ExecuteDataSet(sql.ToString());
+            foreach (DataRow dr in ds.Tables[0].Rows) {
+                int meetingId = (int)dr["MeetingId"];
+                int dayOfMonth = ((DateTime)dr["MeetingDate"]).Day;
+                string meetingName = dr["MeetingDescription"].ToString();
+                meetings.AddMeeting(meetingId, dayOfMonth, meetingName);
+            }
+            _meetingsForMonth = meetings;
+        }
+
+        public EditMeetingViewDecoratorDatabase(IEditMeetingView meeting, IConnectionControl connection) : base(meeting) {
             _meeting = meeting;
             _connection = connection;
         }
