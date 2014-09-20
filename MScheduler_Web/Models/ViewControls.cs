@@ -87,4 +87,30 @@ namespace MScheduler_Web.Models {
             return slot;
         }
     }
+
+    public class BatonCreateMeeting {
+        public List<SelectListItem> Templates { get; set; }
+        public int TemplateId { get; set; }
+        public bool UseTemplate { get; set; }
+        public string Description { get; set; }
+        public DateTime Date { get; set; }
+
+        public void Import(EditMeetingView.CreateMeeting baton) {
+            this.TemplateId = baton.TemplateId;
+            this.UseTemplate = baton.UseTemplate;
+            this.Description = baton.Description;
+            this.Date = baton.Date;
+
+            this.Templates = new List<SelectListItem>();
+            foreach (SelectionItem item in baton.Templates) {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Text = item.Text;
+                selectItem.Value = item.Value;
+                if (Convert.ToInt32(item.Value) == this.TemplateId) {
+                    selectItem.Selected = true;
+                }
+                this.Templates.Add(selectItem);
+            }
+        }
+    }
 }

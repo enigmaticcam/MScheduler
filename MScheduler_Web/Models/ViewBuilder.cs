@@ -37,6 +37,10 @@ namespace MScheduler_Web.Models {
             return RenderViewToString("MeetingCalendar", month);
         }
 
+        public MvcHtmlString DisplayCreateMeeting(BatonCreateMeeting baton) {
+            return RenderViewToString("CreateMeeting", baton);
+        }
+
         private MvcHtmlString RenderViewToString(string viewName) {
             return RenderViewToString(viewName, null);
         }

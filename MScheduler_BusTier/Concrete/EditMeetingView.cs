@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MScheduler_BusTier.Abstract;
 
 namespace MScheduler_BusTier.Concrete {
     public interface IEditMeetingView {
         DateTime CurrentMonth { get; set; }
         EditMeetingView.MonthWithMeetings BatonMonth { get; }
+        EditMeetingView.CreateMeeting BatonCreateMeeting { get; set; }
+        Dictionary<int, string> Templates { get; set; }
+        void LoadFromSource();
     }
     
     public class EditMeetingView : IEditMeetingView {
@@ -23,6 +28,31 @@ namespace MScheduler_BusTier.Concrete {
                 MonthWithMeetings month = new MonthWithMeetings(_currentMonth);
                 return month;
             }
+        }
+
+        public CreateMeeting BatonCreateMeeting {
+            get {
+                CreateMeeting baton = new CreateMeeting();
+                baton.Templates = new List<SelectionItem>();
+                foreach (KeyValuePair<int, string> template in _templates) {
+                    SelectionItem item = new SelectionItem(template.Value, template.Key.ToString());
+                    baton.Templates.Add(item);
+                }
+                return baton;
+            }
+            set {
+
+            }
+        }
+
+        private Dictionary<int, string> _templates;
+        public Dictionary<int, string> Templates {
+            get { return _templates; }
+            set { _templates = value; }
+        }
+
+        public void LoadFromSource() {
+
         }
 
         public EditMeetingView() {
@@ -79,7 +109,7 @@ namespace MScheduler_BusTier.Concrete {
 
             private void PopulateExtraMonthNames() {
                 this.ExtraMonths = new List<ExtraMonth>();
-                for (int i = 0; i < 12; i++) {
+                for (int i = 0; i < 13; i++) {
                     this.ExtraMonths.Add(new ExtraMonth(YearMonthFromDate(_date.AddMonths(-6 + i)), -6 + i, (i == 6)));
                 }
             }
@@ -96,6 +126,14 @@ namespace MScheduler_BusTier.Concrete {
                 }
             }
         }
+
+        public class CreateMeeting {
+            public List<SelectionItem> Templates { get; set; }
+            public int TemplateId { get; set; }
+            public bool UseTemplate { get; set; }
+            public string Description { get; set; }
+            public DateTime Date { get; set; }
+        }
     }
 
     public abstract class EditMeetingViewDecorator : IEditMeetingView {
@@ -106,8 +144,22 @@ namespace MScheduler_BusTier.Concrete {
             set { _meeting.CurrentMonth = value; }
         }
 
+        public virtual Dictionary<int, string> Templates {
+            get { return _meeting.Templates; }
+            set { _meeting.Templates = value; }
+        }
+
         public virtual EditMeetingView.MonthWithMeetings BatonMonth {
             get { return _meeting.BatonMonth; }
+        }
+
+        public virtual EditMeetingView.CreateMeeting BatonCreateMeeting {
+            get { return _meeting.BatonCreateMeeting; }
+            set { _meeting.BatonCreateMeeting = value; }
+        }
+
+        public virtual void LoadFromSource() {
+            _meeting.LoadFromSource();
         }
 
         public EditMeetingViewDecorator(IEditMeetingView meeting) {

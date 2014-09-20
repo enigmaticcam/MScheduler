@@ -63,6 +63,12 @@ namespace MScheduler_Web.Models {
             return _data.ViewBuilder.DisplayMeetingCalendar(_data.EditMeetingView.BatonMonth);
         }
 
+        public MvcHtmlString DisplayCreateMeeting() {
+            BatonCreateMeeting baton = new BatonCreateMeeting();
+            baton.Import(_data.EditMeetingView.BatonCreateMeeting);
+            return _data.ViewBuilder.DisplayCreateMeeting(baton);
+        }
+
         private List<SelectListItem> ConvertEnumToSelectList<TEnum>(TEnum selectedValue) {
             List<SelectListItem> items = new List<SelectListItem>();
             string[] keys = Enum.GetNames(typeof(TEnum));
@@ -141,6 +147,7 @@ namespace MScheduler_Web.Models {
                 get {
                     if (_editMeetingView == null) {
                         _editMeetingView = this.Factory.CreateEditMeetingView();
+                        _editMeetingView.LoadFromSource();
                     }
                     return _editMeetingView;
                 }

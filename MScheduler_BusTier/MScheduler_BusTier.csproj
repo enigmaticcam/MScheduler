@@ -50,6 +50,7 @@
     <Compile Include="Concrete\EditMeetingView.cs" />
     <Compile Include="Concrete\EditTemplateView.cs" />
     <Compile Include="Concrete\FactoryMain.cs" />
+    <Compile Include="Concrete\ViewControls.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

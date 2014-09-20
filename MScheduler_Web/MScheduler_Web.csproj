@@ -225,6 +225,9 @@
     <Content Include="Views\Shared\EditorTemplates\TemplateSlots.cshtml" />
     <Content Include="Views\Controls\MeetingCalendar.cshtml" />
     <Content Include="Views\EditMeeting\Index.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\MonthSelector.cshtml" />
+    <Content Include="Views\Controls\CreateMeeting.cshtml" />
+    <Content Include="Views\EditMeeting\CreateMeetingConfirm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

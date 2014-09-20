@@ -820,4 +820,30 @@ namespace MScheduler_BusTier.Abstract {
             _connection = connection;
         }
     }
+
+    public class EditMeetingViewDecoratorDatabase : EditMeetingViewDecorator {
+        private IEditMeetingView _meeting;
+        private IConnectionControl _connection;
+
+        public override void LoadFromSource() {
+            LoadTemplates();
+        }
+
+        private void LoadTemplates() {
+            Dictionary<int, string> templates = new Dictionary<int, string>();
+            StringBuilder sql = new StringBuilder();
+            sql.AppendLine("select * from " + _connection.DatabaseName + ".dbo.Template where IsDeleted = 0");
+            DataSet ds = _connection.ExecuteDataSet(sql.ToString());
+            foreach (DataRow dr in ds.Tables[0].Rows) {
+                templates.Add((int)dr["TemplateId"], dr["Description"].ToString());
+            }
+            _meeting.Templates = templates;
+        }
+
+        public EditMeetingViewDecoratorDatabase(IEditMeetingView meeting, IConnectionControl connection)
+            : base(meeting) {
+            _meeting = meeting;
+            _connection = connection;
+        }
+    }
 }

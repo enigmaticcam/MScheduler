@@ -12,7 +12,7 @@ namespace MScheduler_Web.Controllers {
         protected IFactory DefaultFactory {
             get {
                 if (_defaultFactory == null) {
-                    _defaultFactory = Factory.CreateInstance();
+                    _defaultFactory = Factory.CreateInstance(Factory.enumDatabaseInstance.Development);
                 }
                 return _defaultFactory;
             }

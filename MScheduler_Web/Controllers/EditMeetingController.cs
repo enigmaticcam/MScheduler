@@ -19,6 +19,11 @@ namespace MScheduler_Web.Controllers {
             return RedirectToAction("Index");
         }
 
+        public ActionResult CreateMeetingConfirm() {
+            ViewState viewState = GetViewState();
+            return View(viewState);
+        }
+
         private ViewState GetViewState(bool refresh = false) {
             ViewState viewState = (ViewState)Session["ViewState"];
             if (viewState == null || refresh) {

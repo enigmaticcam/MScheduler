@@ -10,11 +10,13 @@ div.CalTitle {
     background-color: white;
     color: black;
     }
+
 /* Styling for the footer */
 div.CalFooter {
     font: small Verdana, Arial, Helvetica, sans-serif;
     text-align: center;
     }
+
 /* Styling for the overall table */
 table.Cal {
     font: 100% Verdana, Arial, Helvetica, sans-serif;
@@ -22,6 +24,7 @@ table.Cal {
     border-collapse: collapse;
     width: 100%;
     }
+
 /* Styling for the column headers (days of the week) */
 table.Cal th {
     padding: 0 0.5em;
@@ -29,6 +32,7 @@ table.Cal th {
     background-color:gray;
     color:white;
     }
+
 /* Styling for the individual cells (days) */
 table.Cal td  {     
     font-size: medium;
@@ -38,3 +42,7 @@ table.Cal td  {
     text-align: left;
     vertical-align: top;
     }
+
+.CalPlusButton {
+    float: right;    
+}

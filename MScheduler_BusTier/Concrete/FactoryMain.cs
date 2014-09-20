@@ -9,7 +9,7 @@ namespace MScheduler_BusTier.Concrete {
     public class FactoryMain : Factory {
 
         private enumDatabaseInstance DefaultDatabaseInstance {
-            get { return enumDatabaseInstance.LocalDB; }
+            get { return enumDatabaseInstance.Development; }
         }
 
         public FactoryMain() {
@@ -30,6 +30,9 @@ namespace MScheduler_BusTier.Concrete {
             switch (version) {
                 case enumDatabaseInstance.LocalDB:
                     connection = new ConnectionControl("MScheduler", "Server=(localdb)\\v11.0;Integrated Security=true;initial catalog=MScheduler;");
+                    break;
+                case enumDatabaseInstance.Development:
+                    connection = new ConnectionControl("MScheduler", "Server=SUPERFLY\\SQLEXPRESS;Integrated Security=true;initial catalog=MScheduler;");
                     break;
                 default:
                     throw new Exception("Database Instance Connection not implemented");
@@ -69,43 +72,54 @@ namespace MScheduler_BusTier.Concrete {
 
         public override IEditMeetingView CreateEditMeetingView() {
             EditMeetingView meetingView = new EditMeetingView();
-            return meetingView;
+            return WrapInDecoratorsEditMeetingView(meetingView);
         }
 
         private IMeeting WrapInDecoratorsMeeting(Meeting meeting) {
-            IMeeting decoratedMeeting = new MeetingDecoratorDatabase.Builder()
+            IMeeting decoratedMeeting = meeting;
+            decoratedMeeting = new MeetingDecoratorDatabase.Builder()
                 .SetConnection(this.CreateAppConnection(this.DefaultDatabaseInstance))
                 .SetFactory(this)
-                .SetMeeting(meeting)
+                .SetMeeting(decoratedMeeting)
                 .Build();
             return decoratedMeeting;
         }
 
         private ISlot WrapInDecoratorsSlot(Slot slot) {
-            ISlot decoratedSlot = new SlotDecoratorDatabase.Builder()
+            ISlot decoratedSlot = slot;
+            decoratedSlot = new SlotDecoratorDatabase.Builder()
                 .SetConnection(this.CreateAppConnection(this.DefaultDatabaseInstance))
                 .SetFactory(this)
-                .SetSlot(slot)
+                .SetSlot(decoratedSlot)
                 .Build();
             return decoratedSlot;
         }
 
         private IUser WrapInDecoratorsUser(User user) {
-            IUser decoratoedUser = new UserDecoratorDatabase(user, this.CreateAppConnection(this.DefaultDatabaseInstance));
+            IUser decoratoedUser = user;
+            decoratoedUser = new UserDecoratorDatabase(decoratoedUser, this.CreateAppConnection(this.DefaultDatabaseInstance));
             return decoratoedUser;
         }
 
         private ITemplate WrapInDecoratorsTemplate(Template template) {
-            ITemplate decoratedTemplate = new TemplateDecoratorDatabase.Builder()
+            ITemplate decoratedTemplate = template;
+            decoratedTemplate = new TemplateDecoratorDatabase.Builder()
                 .SetConnection(this.CreateAppConnection(this.DefaultDatabaseInstance))
-                .SetTemplate(template)
+                .SetTemplate(decoratedTemplate)
                 .Build();
             return decoratedTemplate;
         }
 
         private IEditTemplateView WrapInDecoratorsEditTemplateView(EditTemplateView templateView) {
-            IEditTemplateView decoratedTemplateView = new EditTemplateViewDecoratorDatabase(templateView, this.CreateAppConnection(this.DefaultDatabaseInstance));
+            IEditTemplateView decoratedTemplateView = templateView;
+            decoratedTemplateView = new EditTemplateViewDecoratorDatabase(decoratedTemplateView, this.CreateAppConnection(this.DefaultDatabaseInstance));
             return decoratedTemplateView;
+        }
+
+        private IEditMeetingView WrapInDecoratorsEditMeetingView(EditMeetingView meetingView) {
+            IEditMeetingView decoratedMeetingView = meetingView;
+            decoratedMeetingView = new EditMeetingViewDecoratorDatabase(decoratedMeetingView, this.CreateAppConnection(this.DefaultDatabaseInstance));
+            return decoratedMeetingView;
         }
     }
 }
