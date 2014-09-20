@@ -161,6 +161,7 @@
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\EditTemplateController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\MeetingController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -222,6 +223,8 @@
     <Content Include="Views\Controls\ViewControlDropDownList.cshtml" />
     <Content Include="Views\Controls\TemplateSlotTable.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\TemplateSlots.cshtml" />
+    <Content Include="Views\Controls\MeetingCalendar.cshtml" />
+    <Content Include="Views\Meeting\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

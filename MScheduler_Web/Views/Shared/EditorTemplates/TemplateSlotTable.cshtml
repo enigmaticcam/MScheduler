@@ -1,0 +1,12 @@
+﻿@using MScheduler_Web.Models
+@using MScheduler_BusTier.Abstract
+@model BatonTemplateSlots
+
+<div class="container-fluid">
+    <form action="" method="post">
+        <input type="submit" value="Add Slot" name="TemplateSlotTable:AddSlot" class="btn btn-primary btn-sm" />
+        <input type="submit" value="Update" name="TemplateSlotTable:Update" class="btn btn-primary btn-sm" />
+        @Html.HiddenFor(m => m.TemplateId)
+        @Html.EditorFor(m => m.TemplateSlots, "TemplateSlots")
+    </form>
+</div>

@@ -33,6 +33,10 @@ namespace MScheduler_Web.Models {
             return RenderViewToString("TemplateSlotTable", baton);
         }
 
+        public MvcHtmlString DisplayMeetingCalendar(ViewState viewState) {
+            return RenderViewToString("MeetingCalendar", viewState);
+        }
+
         private MvcHtmlString RenderViewToString(string viewName) {
             return RenderViewToString(viewName, null);
         }
