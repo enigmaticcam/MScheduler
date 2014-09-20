@@ -75,6 +75,11 @@ namespace MScheduler_BusTier.Concrete {
             return WrapInDecoratorsEditMeetingView(meetingView);
         }
 
+        public override IEditSlot CreateEditSlot() {
+            EditSlot editSlot = new EditSlot();
+            return editSlot;
+        }
+
         private IMeeting WrapInDecoratorsMeeting(Meeting meeting) {
             IMeeting decoratedMeeting = meeting;
             decoratedMeeting = new MeetingDecoratorDatabase.Builder()

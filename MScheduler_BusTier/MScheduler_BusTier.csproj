@@ -48,6 +48,7 @@
     <Compile Include="Abstract\Template.cs" />
     <Compile Include="Abstract\User.cs" />
     <Compile Include="Concrete\EditMeetingView.cs" />
+    <Compile Include="Concrete\EditSlot.cs" />
     <Compile Include="Concrete\EditTemplateView.cs" />
     <Compile Include="Concrete\FactoryMain.cs" />
     <Compile Include="Concrete\ViewControls.cs" />

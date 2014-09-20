@@ -19,6 +19,10 @@ namespace MScheduler_Web.Models {
             get { return _data.EditMeetingView; }
         }
 
+        public IEditSlot CurrentEditSlot {
+            get { return _data.EditSlot; }
+        }
+
         public MvcHtmlString StatusMessage() {
             return _webServer.GetStatusMessage(_data.ViewBuilder.TempDataDictionary);
         }
@@ -158,6 +162,16 @@ namespace MScheduler_Web.Models {
                         _editMeetingView.LoadFromSource();
                     }
                     return _editMeetingView;
+                }
+            }
+
+            private IEditSlot _editSlot;
+            public IEditSlot EditSlot {
+                get {
+                    if (_editSlot == null) {
+                        _editSlot = this.Factory.CreateEditSlot();
+                    }
+                    return _editSlot;
                 }
             }
         }
