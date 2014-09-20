@@ -15,7 +15,7 @@ namespace MScheduler_BusTier.Abstract {
         Slot.SlotData Data { set; }
         ISlotFiller Filler { get; }
         int Id { get; }
-        int MeetingId { get; }
+        int MeetingId { get; set; }
         string Title { get; }
         string Description { get; }
         int SortNumber { get; }
@@ -47,11 +47,12 @@ namespace MScheduler_BusTier.Abstract {
         }
 
         public int Id {
-            get { return _slotData.Id; }
+            get { return _slotData.Id; }            
         }
 
         public int MeetingId {
             get { return _slotData.MeetingId; }
+            set { _slotData.MeetingId = value; }
         }
 
         public string Title {
@@ -133,6 +134,7 @@ namespace MScheduler_BusTier.Abstract {
 
         public virtual int MeetingId {
             get { return _slot.MeetingId; }
+            set { _slot.MeetingId = value; }
         }
 
         public virtual string Title {

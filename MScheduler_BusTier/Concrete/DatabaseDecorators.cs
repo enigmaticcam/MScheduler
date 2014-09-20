@@ -126,7 +126,7 @@ namespace MScheduler_BusTier.Abstract {
                 AddNewIdReturn();
                 CloseSQL();
                 int id = PerformSave();
-                SaveSlots();
+                SaveSlots(id);
                 return id;
             }
 
@@ -174,8 +174,9 @@ namespace MScheduler_BusTier.Abstract {
                 return (int)_connection.ExecuteScalar(_sql.ToString());
             }
 
-            private void SaveSlots() {
+            private void SaveSlots(int id) {
                 foreach (ISlot slot in _meeting.Slots) {
+                    slot.MeetingId = id;
                     slot.SaveToSource();
                 }
             }

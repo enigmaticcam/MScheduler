@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MScheduler_BusTier.Abstract {
     public interface IMeeting {
-        Meeting.MeetingData Data { set; }
+        Meeting.MeetingData Data { get; set; }
         int Id { get; }
         string Description { get; }
         DateTime Date { get; }
@@ -22,6 +22,7 @@ namespace MScheduler_BusTier.Abstract {
             set { _meetingData = value; }
         }
         public MeetingData Data {
+            get { return _meetingData; }
             set { _meetingData = value; }
         }
 
@@ -62,6 +63,7 @@ namespace MScheduler_BusTier.Abstract {
         private IMeeting _meeting;
 
         public virtual Meeting.MeetingData Data {
+            get { return _meeting.Data; }
             set { _meeting.Data = value; }
         }
 

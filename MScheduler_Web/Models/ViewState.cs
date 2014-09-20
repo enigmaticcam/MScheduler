@@ -66,6 +66,7 @@ namespace MScheduler_Web.Models {
         public MvcHtmlString DisplayCreateMeeting() {
             BatonCreateMeeting baton = new BatonCreateMeeting();
             baton.Import(_data.EditMeetingView.BatonCreateMeeting);
+            baton.UseTemplate = true;
             return _data.ViewBuilder.DisplayCreateMeeting(baton);
         }
 

@@ -71,7 +71,7 @@ namespace MScheduler_BusTier.Concrete {
         }
 
         public override IEditMeetingView CreateEditMeetingView() {
-            EditMeetingView meetingView = new EditMeetingView();
+            EditMeetingView meetingView = new EditMeetingView(this);
             return WrapInDecoratorsEditMeetingView(meetingView);
         }
 

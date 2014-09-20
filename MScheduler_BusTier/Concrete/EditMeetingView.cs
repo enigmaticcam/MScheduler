@@ -9,18 +9,50 @@ using MScheduler_BusTier.Abstract;
 
 namespace MScheduler_BusTier.Concrete {
     public interface IEditMeetingView {
+        int Id { get; }
+        string Description { get; }
+        DateTime Date { get; }
         DateTime CurrentMonth { get; set; }
+        int CurrentDay { get; set; }
+        bool HasChanged { get; }
         EditMeetingView.MonthWithMeetings BatonMonth { get; }
         EditMeetingView.CreateMeeting BatonCreateMeeting { get; set; }
         Dictionary<int, string> Templates { get; set; }
+        void SetMeeting(int id);
         void LoadFromSource();
     }
     
     public class EditMeetingView : IEditMeetingView {
+        private Meeting.MeetingData _data;
+        private IFactory _factory;
+
+        public int Id {
+            get { return _data.Id; }
+        }
+
+        public string Description {
+            get { return _data.Description; }
+        }
+
+        public DateTime Date {
+            get { return _data.Date; }
+        }
+
         private DateTime _currentMonth;
         public DateTime CurrentMonth {
             get { return _currentMonth; }
             set { _currentMonth = value; }
+        }
+
+        private int _currentDay;
+        public int CurrentDay {
+            get { return _currentDay; }
+            set { _currentDay = value; }
+        }
+
+        private bool _hasChanged;
+        public bool HasChanged {
+            get { return _hasChanged; }
         }
 
         public EditMeetingView.MonthWithMeetings BatonMonth {
@@ -38,10 +70,24 @@ namespace MScheduler_BusTier.Concrete {
                     SelectionItem item = new SelectionItem(template.Value, template.Key.ToString());
                     baton.Templates.Add(item);
                 }
+                baton.Date = _currentMonth.AddDays(_currentDay);
                 return baton;
             }
             set {
-
+                _data = new Meeting.MeetingData();
+                if (value.UseTemplate) {
+                    ITemplate template = _factory.CreateTemplate();
+                    template.LoadFromSource(value.TemplateId);
+                    _data.Slots = template.GenerateMeetingSlots();                    
+                }
+                _data.Date = value.Date;
+                _data.Description = value.Description;
+                IMeeting meeting = _factory.CreateMeeting();
+                meeting.Data = _data;
+                int meetingId = meeting.SaveToSource();
+                meeting = _factory.CreateMeeting();
+                meeting.LoadFromSource(meetingId);
+                _data = meeting.Data;
             }
         }
 
@@ -51,12 +97,22 @@ namespace MScheduler_BusTier.Concrete {
             set { _templates = value; }
         }
 
+        public void SetMeeting(int id) {
+            if (_data == null || _data.Id != id) {
+                IMeeting meeting = _factory.CreateMeeting();
+                meeting.LoadFromSource(id);
+                _data = meeting.Data;
+                _hasChanged = false;
+            }
+        }
+
         public void LoadFromSource() {
 
         }
 
-        public EditMeetingView() {
+        public EditMeetingView(IFactory factory) {
             _currentMonth = DateTime.Parse(DateTime.Now.Year + "-" + DateTime.Now.Month);
+            _factory = factory;
         }
 
         public class MonthWithMeetings {
@@ -139,9 +195,30 @@ namespace MScheduler_BusTier.Concrete {
     public abstract class EditMeetingViewDecorator : IEditMeetingView {
         private IEditMeetingView _meeting;
 
+        public virtual int Id {
+            get { return _meeting.Id; }
+        }
+
+        public virtual string Description {
+            get { return _meeting.Description; }
+        }
+
+        public virtual DateTime Date {
+            get { return _meeting.Date; }
+        }
+
         public virtual DateTime CurrentMonth {
             get { return _meeting.CurrentMonth; }
             set { _meeting.CurrentMonth = value; }
+        }
+
+        public virtual int CurrentDay {
+            get { return _meeting.CurrentDay; }
+            set { _meeting.CurrentDay = value; }
+        }
+
+        public virtual bool HasChanged {
+            get { return _meeting.HasChanged; }
         }
 
         public virtual Dictionary<int, string> Templates {
@@ -156,6 +233,10 @@ namespace MScheduler_BusTier.Concrete {
         public virtual EditMeetingView.CreateMeeting BatonCreateMeeting {
             get { return _meeting.BatonCreateMeeting; }
             set { _meeting.BatonCreateMeeting = value; }
+        }
+
+        public virtual void SetMeeting(int id) {
+            _meeting.SetMeeting(id);
         }
 
         public virtual void LoadFromSource() {

@@ -13,7 +13,7 @@
                 <td>
                     @if (Model.MonthDays[day] != null) {
                         <span>@Model.MonthDays[day]</span>
-                        <button type="button" class="btn btn-xs btn-default CalPlusButton" onclick="location.href='@Url.Action("CreateMeetingConfirm", "EditMeeting")'">+</button>
+                        <button type="button" class="btn btn-xs btn-default CalPlusButton" onclick="location.href='@Url.Action("CreateMeetingConfirm", "EditMeeting", new { dayOffset = day - 1 })'">+</button>
                     }
                 </td>
             }
