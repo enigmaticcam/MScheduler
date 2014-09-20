@@ -15,6 +15,7 @@ namespace MScheduler_BusTier.Concrete {
         DateTime CurrentMonth { get; set; }
         int CurrentDay { get; set; }
         bool HasChanged { get; }
+        EditMeetingView.Baton BatonMeeting { get; set; }
         EditMeetingView.MonthsWithMeetings BatonMonths { get; }
         EditMeetingView.MeetingsForMonth BatonMeetings { get; }
         EditMeetingView.CreateMeeting BatonCreateMeeting { get; set; }
@@ -55,6 +56,20 @@ namespace MScheduler_BusTier.Concrete {
         private bool _hasChanged;
         public bool HasChanged {
             get { return _hasChanged; }
+        }
+
+        public Baton BatonMeeting {
+            get {
+                Baton baton = new Baton();
+                baton.Id = _data.Id;
+                baton.Description = _data.Description;
+                baton.Date = _data.Date;
+                baton.IsDeleted = _data.IsDeleted;
+                return baton;
+            }
+            set {
+
+            }
         }
 
         public EditMeetingView.MonthsWithMeetings BatonMonths {
@@ -226,6 +241,13 @@ namespace MScheduler_BusTier.Concrete {
                 _meetingNames.Add(meetingId, meetingName);
             }
         }
+
+        public class Baton {
+            public int Id { get; set; }
+            public string Description { get; set; }
+            public DateTime Date { get; set; }
+            public bool IsDeleted { get; set; }
+        }
     }
 
     public abstract class EditMeetingViewDecorator : IEditMeetingView {
@@ -265,6 +287,11 @@ namespace MScheduler_BusTier.Concrete {
         public virtual Dictionary<int, string> Meetings {
             get { return _meeting.Meetings; }
             set { _meeting.Meetings = value; }
+        }
+
+        public virtual EditMeetingView.Baton BatonMeeting {
+            get { return _meeting.BatonMeeting; }
+            set { _meeting.BatonMeeting = value; }
         }
 
         public virtual EditMeetingView.MonthsWithMeetings BatonMonths {

@@ -67,6 +67,7 @@ namespace MScheduler_BusTier.Abstract {
                 _data.Id = _meetingId;
                 _data.Description = GetValueFromDataSet("MeetingDescription").ToString();
                 _data.Date = (DateTime)GetValueFromDataSet("MeetingDate");
+                _data.IsDeleted = (bool)GetValueFromDataSet("IsDeleted");
             }
 
             private void PopulateSlots() {
@@ -144,9 +145,10 @@ namespace MScheduler_BusTier.Abstract {
             }
 
             private void GenerateTableSqlNew() {
-                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.Meeting(MeetingDescription, MeetingDate)");
+                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.Meeting(MeetingDescription, MeetingDate, IsDeleted)");
                 _sql.Append("values('" + _connection.SqlSafe(_meeting.Description) + "'");
                 _sql.Append(",'" + _meeting.Date.ToShortDateString() + "'");
+                _sql.Append("," + (_meeting.IsDeleted ? "1" : "0"));
                 _sql.AppendLine(")");
                 _sql.AppendLine("");
                 _sql.AppendLine("select @MeetingId = max(MeetingID) from " + _connection.DatabaseName + ".dbo.Meeting");
@@ -156,6 +158,7 @@ namespace MScheduler_BusTier.Abstract {
                 _sql.AppendLine("update " + _connection.DatabaseName + ".dbo.Meeting");
                 _sql.AppendLine("set MeetingDescription = '" + _connection.SqlSafe(_meeting.Description) + "'");
                 _sql.AppendLine(", MeetingDate = '" + _meeting.Date.ToShortDateString() + "'");
+                _sql.AppendLine(", IsDeleted = " + (_meeting.IsDeleted ? "1" : "0"));
                 _sql.AppendLine("where MeetingId = " + _meeting.Id);
                 _sql.AppendLine("");
                 _sql.AppendLine("set @MeetingId = " + _meeting.Id);
@@ -859,6 +862,7 @@ namespace MScheduler_BusTier.Abstract {
             sql.AppendLine("select * from " + _connection.DatabaseName + ".dbo.Meeting");
             sql.AppendLine("where year(MeetingDate) = year('" + _meeting.CurrentMonth.ToShortDateString() + "')");
             sql.AppendLine("and month(MeetingDate) = month('" + _meeting.CurrentMonth.ToShortDateString() + "')");
+            sql.AppendLine("and IsDeleted = 0");
             DataSet ds = _connection.ExecuteDataSet(sql.ToString());
             foreach (DataRow dr in ds.Tables[0].Rows) {
                 int meetingId = (int)dr["MeetingId"];

@@ -9,6 +9,7 @@ namespace MScheduler_BusTier.Abstract {
         Meeting.MeetingData Data { get; set; }
         int Id { get; }
         string Description { get; }
+        bool IsDeleted { get; }
         DateTime Date { get; }
         IEnumerable<ISlot> Slots { get; }
         void LoadFromSource(int id);
@@ -38,6 +39,10 @@ namespace MScheduler_BusTier.Abstract {
             get { return _meetingData.Date; }
         }
 
+        public bool IsDeleted {
+            get { return _meetingData.IsDeleted; }
+        }
+
         public IEnumerable<ISlot> Slots {
             get { return _meetingData.Slots.OrderBy(s => s.SortNumber); }
         }
@@ -55,6 +60,7 @@ namespace MScheduler_BusTier.Abstract {
             public int Id;
             public string Description;
             public DateTime Date;
+            public bool IsDeleted;
             public List<ISlot> Slots { get; set; }
         }
     }
@@ -77,6 +83,10 @@ namespace MScheduler_BusTier.Abstract {
 
         public virtual DateTime Date {
             get { return _meeting.Date; }
+        }
+
+        public virtual bool IsDeleted {
+            get { return _meeting.IsDeleted; }
         }
 
         public virtual IEnumerable<ISlot> Slots {

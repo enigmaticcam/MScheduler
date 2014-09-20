@@ -229,6 +229,7 @@
     <Content Include="Views\Controls\CreateMeeting.cshtml" />
     <Content Include="Views\EditMeeting\CreateMeetingConfirm.cshtml" />
     <Content Include="Views\EditMeeting\Meeting.cshtml" />
+    <Content Include="Views\Controls\MeetingProperties.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

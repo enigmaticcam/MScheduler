@@ -1,4 +1,9 @@
 ﻿@using MScheduler_Web.Models
 @model ViewState
 
-@Model.CurrentEditMeetingView.Id
+<div class="panel panel-default">
+    <div class="panel-heading">Meeting Details</div>
+    <div class="panel-body">
+        @Model.DisplayMeetingProperties()
+    </div>
+</div>

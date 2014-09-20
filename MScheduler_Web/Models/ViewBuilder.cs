@@ -41,6 +41,10 @@ namespace MScheduler_Web.Models {
             return RenderViewToString("CreateMeeting", baton);
         }
 
+        public MvcHtmlString DisplayMeetingProperties(EditMeetingView.Baton baton) {
+            return RenderViewToString("MeetingProperties", baton);
+        }
+
         private MvcHtmlString RenderViewToString(string viewName) {
             return RenderViewToString(viewName, null);
         }

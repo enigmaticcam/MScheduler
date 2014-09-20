@@ -73,6 +73,10 @@ namespace MScheduler_Web.Models {
             return _data.ViewBuilder.DisplayCreateMeeting(baton);
         }
 
+        public MvcHtmlString DisplayMeetingProperties() {
+            return _data.ViewBuilder.DisplayMeetingProperties(_data.EditMeetingView.BatonMeeting);
+        }
+
         private List<SelectListItem> ConvertEnumToSelectList<TEnum>(TEnum selectedValue) {
             List<SelectListItem> items = new List<SelectListItem>();
             string[] keys = Enum.GetNames(typeof(TEnum));

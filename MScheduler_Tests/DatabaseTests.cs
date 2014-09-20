@@ -101,6 +101,7 @@ namespace MScheduler_Tests {
             Meeting.MeetingData data = new Meeting.MeetingData();
             data.Description = "MeetingDescription";
             data.Date = DateTime.Parse("5/23/2004");
+            data.IsDeleted = true;
             data.Slots = slots;
 
             Mock<Meeting> meetingOld = new Mock<Meeting>();
@@ -126,6 +127,7 @@ namespace MScheduler_Tests {
             // Assert
             Assert.AreEqual(meetingOld.Object.Description, meetingNew.Object.Description);
             Assert.AreEqual(meetingOld.Object.Date, meetingNew.Object.Date);
+            Assert.AreEqual(meetingOld.Object.IsDeleted, meetingNew.Object.IsDeleted);
             Assert.AreEqual(meetingOld.Object.Slots.Count(), meetingNew.Object.Slots.Count());
             Assert.AreEqual(meetingOld.Object.Slots.ElementAt(0).Id, meetingNew.Object.Slots.ElementAt(0).Id);
             Assert.AreEqual(meetingOld.Object.Slots.ElementAt(1).Id, meetingNew.Object.Slots.ElementAt(1).Id);
