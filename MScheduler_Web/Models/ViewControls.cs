@@ -115,7 +115,7 @@ namespace MScheduler_Web.Models {
     }
 
     public class BatonCalendar {
-        public EditMeetingView.MonthsWithMeetings MonthsForMeetings { get; set; }
-        public EditMeetingView.MeetingsForMonth MeetingsForMonth { get; set; }
+        public MonthSelectorView.MonthsWithMeetings MonthsForMeetings { get; set; }
+        public MonthSelectorView.MeetingsForMonth MeetingsForMonth { get; set; }
     }
 }

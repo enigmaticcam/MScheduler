@@ -825,21 +825,21 @@ namespace MScheduler_BusTier.Abstract {
         }
     }
 
-    public class EditMeetingViewDecoratorDatabase : EditMeetingViewDecorator {
-        private IEditMeetingView _meeting;
+    public class MonthSelectorViewDecoratorDatabase : MonthSelectorViewDecorator {
+        private IMonthSelectorView _monthSelector;
         private IConnectionControl _connection;
         private DateTime _currentMonth;
-        private EditMeetingView.MeetingsForMonth _meetingsForMonth;
+        private MonthSelectorView.MeetingsForMonth _meetingsForMonth;
 
         public override void LoadFromSource() {
             LoadTemplates();
         }
 
-        public override EditMeetingView.MeetingsForMonth BatonMeetings {
+        public override MonthSelectorView.MeetingsForMonth BatonMeetings {
             get {
-                if (_meeting.CurrentMonth != _currentMonth) {
+                if (_monthSelector.CurrentMonth != _currentMonth) {
                     LoadMeetings();
-                    _currentMonth = _meeting.CurrentMonth;
+                    _currentMonth = _monthSelector.CurrentMonth;
                 }
                 return _meetingsForMonth;
             }
@@ -853,15 +853,15 @@ namespace MScheduler_BusTier.Abstract {
             foreach (DataRow dr in ds.Tables[0].Rows) {
                 templates.Add((int)dr["TemplateId"], dr["Description"].ToString());
             }
-            _meeting.Templates = templates;
+            _monthSelector.Templates = templates;
         }
 
         private void LoadMeetings() {
-            EditMeetingView.MeetingsForMonth meetings = new EditMeetingView.MeetingsForMonth();
+            MonthSelectorView.MeetingsForMonth meetings = new MonthSelectorView.MeetingsForMonth();
             StringBuilder sql = new StringBuilder();
             sql.AppendLine("select * from " + _connection.DatabaseName + ".dbo.Meeting");
-            sql.AppendLine("where year(MeetingDate) = year('" + _meeting.CurrentMonth.ToShortDateString() + "')");
-            sql.AppendLine("and month(MeetingDate) = month('" + _meeting.CurrentMonth.ToShortDateString() + "')");
+            sql.AppendLine("where year(MeetingDate) = year('" + _monthSelector.CurrentMonth.ToShortDateString() + "')");
+            sql.AppendLine("and month(MeetingDate) = month('" + _monthSelector.CurrentMonth.ToShortDateString() + "')");
             sql.AppendLine("and IsDeleted = 0");
             DataSet ds = _connection.ExecuteDataSet(sql.ToString());
             foreach (DataRow dr in ds.Tables[0].Rows) {
@@ -872,6 +872,16 @@ namespace MScheduler_BusTier.Abstract {
             }
             _meetingsForMonth = meetings;
         }
+
+        public MonthSelectorViewDecoratorDatabase(IMonthSelectorView monthSelector, IConnectionControl connection) : base(monthSelector) {
+            _monthSelector = monthSelector;
+            _connection = connection;
+        }
+    }
+
+    public class EditMeetingViewDecoratorDatabase : EditMeetingViewDecorator {
+        private IEditMeetingView _meeting;
+        private IConnectionControl _connection;
 
         public EditMeetingViewDecoratorDatabase(IEditMeetingView meeting, IConnectionControl connection) : base(meeting) {
             _meeting = meeting;

@@ -75,15 +75,15 @@ namespace MScheduler_BusTier.Concrete {
             return WrapInDecoratorsEditMeetingView(meetingView);
         }
 
-        public override IEditSlot CreateEditSlot() {
-            EditSlot editSlot = new EditSlot();
-            return editSlot;
+        public override IMonthSelectorView CreateMonthSelector() {
+            MonthSelectorView monthSelector = new MonthSelectorView();
+            return WrapInDecoratorsMonthSelectorView(monthSelector);
         }
 
         private IMeeting WrapInDecoratorsMeeting(Meeting meeting) {
             IMeeting decoratedMeeting = meeting;
             decoratedMeeting = new MeetingDecoratorDatabase.Builder()
-                .SetConnection(this.CreateAppConnection(this.DefaultDatabaseInstance))
+                .SetConnection(this.CreateAppConnection(this.DatabaseInstance))
                 .SetFactory(this)
                 .SetMeeting(decoratedMeeting)
                 .Build();
@@ -93,7 +93,7 @@ namespace MScheduler_BusTier.Concrete {
         private ISlot WrapInDecoratorsSlot(Slot slot) {
             ISlot decoratedSlot = slot;
             decoratedSlot = new SlotDecoratorDatabase.Builder()
-                .SetConnection(this.CreateAppConnection(this.DefaultDatabaseInstance))
+                .SetConnection(this.CreateAppConnection(this.DatabaseInstance))
                 .SetFactory(this)
                 .SetSlot(decoratedSlot)
                 .Build();
@@ -102,14 +102,14 @@ namespace MScheduler_BusTier.Concrete {
 
         private IUser WrapInDecoratorsUser(User user) {
             IUser decoratoedUser = user;
-            decoratoedUser = new UserDecoratorDatabase(decoratoedUser, this.CreateAppConnection(this.DefaultDatabaseInstance));
+            decoratoedUser = new UserDecoratorDatabase(decoratoedUser, this.CreateAppConnection(this.DatabaseInstance));
             return decoratoedUser;
         }
 
         private ITemplate WrapInDecoratorsTemplate(Template template) {
             ITemplate decoratedTemplate = template;
             decoratedTemplate = new TemplateDecoratorDatabase.Builder()
-                .SetConnection(this.CreateAppConnection(this.DefaultDatabaseInstance))
+                .SetConnection(this.CreateAppConnection(this.DatabaseInstance))
                 .SetTemplate(decoratedTemplate)
                 .Build();
             return decoratedTemplate;
@@ -117,14 +117,20 @@ namespace MScheduler_BusTier.Concrete {
 
         private IEditTemplateView WrapInDecoratorsEditTemplateView(EditTemplateView templateView) {
             IEditTemplateView decoratedTemplateView = templateView;
-            decoratedTemplateView = new EditTemplateViewDecoratorDatabase(decoratedTemplateView, this.CreateAppConnection(this.DefaultDatabaseInstance));
+            decoratedTemplateView = new EditTemplateViewDecoratorDatabase(decoratedTemplateView, this.CreateAppConnection(this.DatabaseInstance));
             return decoratedTemplateView;
         }
 
         private IEditMeetingView WrapInDecoratorsEditMeetingView(EditMeetingView meetingView) {
             IEditMeetingView decoratedMeetingView = meetingView;
-            decoratedMeetingView = new EditMeetingViewDecoratorDatabase(decoratedMeetingView, this.CreateAppConnection(this.DefaultDatabaseInstance));
+            decoratedMeetingView = new EditMeetingViewDecoratorDatabase(decoratedMeetingView, this.CreateAppConnection(this.DatabaseInstance));
             return decoratedMeetingView;
+        }
+
+        private IMonthSelectorView WrapInDecoratorsMonthSelectorView(MonthSelectorView monthSelector) {
+            IMonthSelectorView decorated = monthSelector;
+            decorated = new MonthSelectorViewDecoratorDatabase(decorated, this.CreateAppConnection(this.DatabaseInstance));
+            return decorated;
         }
     }
 }

@@ -99,15 +99,5 @@ namespace MScheduler_Web.Controllers {
             }
             return RedirectToAction("Template", new { id = baton.TemplateId });
         }
-
-        private ViewState GetViewState(bool refresh = false) {
-            ViewState viewState = (ViewState)Session["ViewState"];
-            if (viewState == null || refresh) {
-                viewState = new ViewState(this.DefaultFactory, this.DefaultServer);
-                Session["ViewState"] = viewState;
-            }
-            viewState.SetControllerContext(ControllerContext, ViewData, TempData);
-            return viewState;
-        }
 	}
 }

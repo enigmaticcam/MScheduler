@@ -9,7 +9,7 @@ using MScheduler_Web.Models;
 namespace MScheduler_Web.Controllers {
     public class BaseController : Controller {
         private IFactory _defaultFactory;
-        protected IFactory DefaultFactory {
+        public IFactory DefaultFactory {
             get {
                 if (_defaultFactory == null) {
                     _defaultFactory = Factory.CreateInstance(Factory.enumDatabaseInstance.Development);
@@ -19,13 +19,23 @@ namespace MScheduler_Web.Controllers {
         }
 
         private IWebServer _defaultServer;
-        protected IWebServer DefaultServer {
+        public IWebServer DefaultServer {
             get {
                 if (_defaultServer == null) {
                     _defaultServer = new WebServer();
                 }
                 return _defaultServer;
             }
+        }
+
+        public ViewState GetViewState(bool refresh = false) {
+            ViewState viewState = (ViewState)Session["ViewState"];
+            if (viewState == null || refresh) {
+                viewState = new ViewState(this.DefaultFactory, this.DefaultServer);
+                Session["ViewState"] = viewState;
+            }
+            viewState.SetControllerContext(ControllerContext, ViewData, TempData);
+            return viewState;
         }
 	}
 }

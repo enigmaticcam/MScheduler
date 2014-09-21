@@ -19,8 +19,8 @@ namespace MScheduler_Web.Models {
             get { return _data.EditMeetingView; }
         }
 
-        public IEditSlot CurrentEditSlot {
-            get { return _data.EditSlot; }
+        public IMonthSelectorView CurrentMonthSelectorView {
+            get { return _data.MonthSelectorView; }
         }
 
         public MvcHtmlString StatusMessage() {
@@ -63,16 +63,16 @@ namespace MScheduler_Web.Models {
             return _data.ViewBuilder.DisplayTemplateSlotTable(baton);
         }
 
-        public MvcHtmlString DisplayMeetingCalendar() {
+        public MvcHtmlString DisplayMonthSelector() {
             BatonCalendar baton = new BatonCalendar();
-            baton.MonthsForMeetings = _data.EditMeetingView.BatonMonths;
-            baton.MeetingsForMonth = _data.EditMeetingView.BatonMeetings;
+            baton.MonthsForMeetings = _data.MonthSelectorView.BatonMonths;
+            baton.MeetingsForMonth = _data.MonthSelectorView.BatonMeetings;
             return _data.ViewBuilder.DisplayMeetingCalendar(baton);
         }
 
         public MvcHtmlString DisplayCreateMeeting() {
             BatonCreateMeeting baton = new BatonCreateMeeting();
-            baton.Import(_data.EditMeetingView.BatonCreateMeeting);
+            baton.Import(_data.MonthSelectorView.BatonCreateMeeting);
             baton.UseTemplate = true;
             return _data.ViewBuilder.DisplayCreateMeeting(baton);
         }
@@ -165,13 +165,14 @@ namespace MScheduler_Web.Models {
                 }
             }
 
-            private IEditSlot _editSlot;
-            public IEditSlot EditSlot {
+            private IMonthSelectorView _monthSelectorView;
+            public IMonthSelectorView MonthSelectorView {
                 get {
-                    if (_editSlot == null) {
-                        _editSlot = this.Factory.CreateEditSlot();
+                    if (_monthSelectorView == null) {
+                        _monthSelectorView = this.Factory.CreateMonthSelector();
+                        _monthSelectorView.LoadFromSource();
                     }
-                    return _editSlot;
+                    return _monthSelectorView;
                 }
             }
         }
