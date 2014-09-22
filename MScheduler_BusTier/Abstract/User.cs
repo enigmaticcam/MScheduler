@@ -10,14 +10,13 @@ namespace MScheduler_BusTier.Abstract {
         int Id { get; }
         int SlotFillerId { get; }
         int SlotFillerSourceId { get; }
-        ISlotFiller AsSlotFiller { get; }
         string Description { get; }
         string Name { get; }
         void LoadFromSource(int id);
         int SaveToSource();
     }
 
-    public class User : IUser, ISlotFiller {
+    public class User : IUser {
         private UserData _data;
 
         public UserData Data {
@@ -34,10 +33,6 @@ namespace MScheduler_BusTier.Abstract {
 
         public int SlotFillerSourceId {
             get { return _data.Id; }
-        }
-
-        public ISlotFiller AsSlotFiller {
-            get { return this; }
         }
 
         public string Name {
@@ -89,10 +84,6 @@ namespace MScheduler_BusTier.Abstract {
 
         public virtual int SlotFillerSourceId {
             get { return _user.SlotFillerSourceId; }
-        }
-
-        public virtual ISlotFiller AsSlotFiller {
-            get { return _user.AsSlotFiller; }
         }
 
         public virtual string Name {

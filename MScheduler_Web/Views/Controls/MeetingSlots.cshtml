@@ -1,8 +1,11 @@
 ﻿@using MScheduler_BusTier.Concrete
-@model List<EditSlot.Baton>
+@model List<EditMeetingView.BatonSlot>
 
 <div class="container-fluid">
     <div class="row">
+        <div class="col-sm-2">
+            <label>Slot Type</label>
+        </div>
         <div class="col-sm-3">
             <label>Title</label>
         </div>
@@ -12,12 +15,15 @@
         <div class="col-sm-3">
             <label>Filler Description</label>
         </div>
-        <div class="col-sm-3">
+        <div class="col-sm-1">
             <label>Sort Number</label>
         </div>
     </div>
     @for (int i = 0; i < Model.Count; i++) {
         <div class="row">
+            <div class="col-sm-2">
+                @Html.DisplayTextFor(m => m[i].SlotType)
+            </div>
             <div class="col-sm-3">
                 @Html.TextBoxFor(m => m[i].Title, new { @class = "form-control" })
             </div>
@@ -25,9 +31,9 @@
                 @Html.TextBoxFor(m => m[i].Description, new { @class = "form-control" })
             </div>
             <div class="col-sm-3">
-                @Html.DisplayTextFor(m => m[i].SlotFillerDescription)
+                @Html.DisplayTextFor(m => m[i].FillerDescription)
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-1">
                 @Html.TextBoxFor(m => m[i].SortNumber, new { @class = "form-control" })
             </div>
         </div>

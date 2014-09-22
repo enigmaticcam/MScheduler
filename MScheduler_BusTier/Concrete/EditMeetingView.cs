@@ -14,6 +14,7 @@ namespace MScheduler_BusTier.Concrete {
         bool HasChanged { get; }
         EditMeetingView.Baton BatonMeeting { get; set; }
         EditMeetingView.CreateMeeting BatonCreateMeeting { set; }
+        IEnumerable<EditMeetingView.BatonSlot> BatonSlots { get; set; }
         Dictionary<int, string> Meetings { get; set; }
         void SetMeeting(int id);
         void LoadFromSource();
@@ -73,6 +74,23 @@ namespace MScheduler_BusTier.Concrete {
             }
         }
 
+        public IEnumerable<EditMeetingView.BatonSlot> BatonSlots {
+            get {
+                foreach (ISlot slot in _data.Slots.OrderBy(s => s.SortNumber)) {
+                    BatonSlot baton = new BatonSlot();
+                    baton.SlotId = slot.Id;
+                    baton.Title = slot.Title;
+                    baton.Description = slot.Description;
+                    baton.SortNumber = slot.SortNumber;
+                    baton.SlotType = slot.SlotType.ToString();
+                    yield return baton;
+                }
+            }
+            set {
+
+            }
+        }
+
         private Dictionary<int, string> _meetings;
         public Dictionary<int, string> Meetings {
             get { return _meetings; }
@@ -110,6 +128,16 @@ namespace MScheduler_BusTier.Concrete {
             public DateTime Date { get; set; }
             public bool IsDeleted { get; set; }
         }
+
+        public class BatonSlot {
+            public int SlotId { get; set; }
+            public string Title { get; set; }
+            public string Description { get; set; }
+            public string SlotFillerId { get; set; }
+            public string FillerDescription { get; set; }
+            public int SortNumber { get; set; }
+            public string SlotType { get; set; }
+        }
     }
 
     public abstract class EditMeetingViewDecorator : IEditMeetingView {
@@ -143,6 +171,11 @@ namespace MScheduler_BusTier.Concrete {
         public virtual EditMeetingView.Baton BatonMeeting {
             get { return _meeting.BatonMeeting; }
             set { _meeting.BatonMeeting = value; }
+        }
+
+        public virtual IEnumerable<EditMeetingView.BatonSlot> BatonSlots {
+            get { return _meeting.BatonSlots; }
+            set { _meeting.BatonSlots = value; }
         }
 
         public virtual void SetMeeting(int id) {

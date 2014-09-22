@@ -88,6 +88,35 @@ namespace MScheduler_Web.Models {
         }
     }
 
+    public class BatonSlot {
+        public int SlotId { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public string SlotFillerId { get; set; }
+        public int SortNumber { get; set; }
+        public string SlotType { get; set; }
+        public IEnumerable<SelectListItem> SlotFillers { get; set; }
+
+        public void Import(EditMeetingView.BatonSlot batonSlot, IEnumerable<SelectListItem> slotFillers) {
+            this.SlotId = batonSlot.SlotId;
+            this.Title = batonSlot.Title;
+            this.Description = batonSlot.Description;
+            this.SortNumber = batonSlot.SortNumber;
+            this.SlotType = batonSlot.SlotType;
+            this.SlotFillers = slotFillers;
+        }
+
+        public EditMeetingView.BatonSlot Export() {
+            EditMeetingView.BatonSlot batonSlot = new EditMeetingView.BatonSlot();
+            batonSlot.SlotId = this.SlotId;
+            batonSlot.Title = this.Title;
+            batonSlot.Description = this.Description;
+            batonSlot.SortNumber = this.SortNumber;
+            batonSlot.SlotType = this.SlotType;
+            return batonSlot;
+        }
+    }
+
     public class BatonCreateMeeting {
         public List<SelectListItem> Templates { get; set; }
         public int TemplateId { get; set; }

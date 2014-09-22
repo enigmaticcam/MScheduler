@@ -13,7 +13,6 @@ namespace MScheduler_BusTier.Abstract {
         private IMeeting _meeting;
         private IConnectionControl _connection;
         private IFactory _factory;
-        private DataSet _dataSet;
 
         public override void LoadFromSource(int id) {
             ActionLoadMeeting action = new ActionLoadMeeting.Builder()
@@ -266,7 +265,8 @@ namespace MScheduler_BusTier.Abstract {
                 _data.SortNumber = (int)GetValueFromDataSet("SortNumber");
                 _data.Title = GetValueFromDataSet("Title").ToString();
                 _data.Description = GetValueFromDataSet("Description").ToString();
-                _data.Filler = _factory.CreateSlotFiller((int)GetValueFromDataSet("SlotFillerId"));
+                _data.SlotType = (Slot.enumSlotType)GetValueFromDataSet("SlotTypeId");
+                _data.SlotFillerId = (int)GetValueFromDataSet("SlotFillerId");
             }
 
             private object GetValueFromDataSet(string columnName) {
@@ -333,12 +333,13 @@ namespace MScheduler_BusTier.Abstract {
             }
 
             private void GenerateTableSqlNew() {
-                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.Slot(MeetingId, SlotFillerId, Title, Description, SortNumber)");
+                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.Slot(MeetingId, SlotFillerId, Title, Description, SortNumber, SlotTypeId)");
                 _sql.Append("values(" + _slot.MeetingId);
                 _sql.Append("," + _slot.SlotFillerId);
                 _sql.Append(",'" + _connection.SqlSafe(_slot.Title) + "'");
                 _sql.Append(",'" + _connection.SqlSafe(_slot.Description) + "'");
                 _sql.Append("," + _slot.SortNumber);
+                _sql.Append("," + (int)_slot.SlotType);
                 _sql.AppendLine(")");
                 _sql.AppendLine("");
                 _sql.AppendLine("select @SlotId = max(SlotId) from " + _connection.DatabaseName + ".dbo.Slot");
@@ -351,6 +352,7 @@ namespace MScheduler_BusTier.Abstract {
                 _sql.AppendLine(", Title = '" + _connection.SqlSafe(_slot.Title) + "'");
                 _sql.AppendLine(", Description = '" + _connection.SqlSafe(_slot.Description) + "'");
                 _sql.AppendLine(", SortNumber = " + _slot.SortNumber);
+                _sql.AppendLine(", SlotTypeId = " + (int)_slot.SlotType);
                 _sql.AppendLine("where SlotId = " + _slot.Id);
                 _sql.AppendLine("");
                 _sql.AppendLine("set @SlotId = " + _slot.Id);
@@ -776,34 +778,6 @@ namespace MScheduler_BusTier.Abstract {
         }
     }
 
-    public class FactoryDecoratorDatabase : FactoryDecorator {
-        private IFactory _factory;
-        private IConnectionControl _connection;
-
-        public override ISlotFiller CreateSlotFiller(int id) {
-            StringBuilder sql = new StringBuilder();
-            sql.AppendLine("select SlotTypeId, SlotFillerSourceId from " + _connection.DatabaseName + ".dbo.SlotFiller");
-            sql.AppendLine("where SlotFillerId = " + id);
-            DataSet ds = _connection.ExecuteDataSet(sql.ToString());
-            Slot.enumSlotType slotType = (Slot.enumSlotType)ds.Tables[0].Rows[0]["SlotTypeId"];
-            switch (slotType) {
-                case Slot.enumSlotType.User:
-                    IUser user = _factory.CreateUser();
-                    user.LoadFromSource((int)ds.Tables[0].Rows[0]["SlotFillerSourceId"]);
-                    return _factory.CreateUser().AsSlotFiller;
-                case Slot.enumSlotType.None:
-                    throw new Exception("Cannot cast 'None' to ISlotFiller interface");
-                default:
-                    throw new Exception(slotType.ToString() + " not implemeneted for FactoryDecoratorDatabase.CreateSlotFiller");
-            }
-        }
-
-        public FactoryDecoratorDatabase(IFactory factory) : base(factory) {
-            _factory = factory;
-            _connection = _factory.CreateAppConnection(_factory.DatabaseInstance);
-        }
-    }
-
     public class EditTemplateViewDecoratorDatabase : EditTemplateViewDecorator {
         private IEditTemplateView _templateView;
         private IConnectionControl _connection;
@@ -883,8 +857,29 @@ namespace MScheduler_BusTier.Abstract {
         private IEditMeetingView _meeting;
         private IConnectionControl _connection;
 
+        public override void LoadFromSource() {
+            LoadSlotFillers();
+        }
+
+        private void LoadSlotFillers() {
+            foreach (Slot.enumSlotType slotType in Enum.GetValues(typeof(Slot.enumSlotType))) {
+                StringBuilder sql = new StringBuilder();
+            }
+            
+        }
+
         public EditMeetingViewDecoratorDatabase(IEditMeetingView meeting, IConnectionControl connection) : base(meeting) {
             _meeting = meeting;
+            _connection = connection;
+        }
+    }
+
+    public class SlotFillerDecoratorDatabase : SlotFillerDecorator {
+        private ISlotFiller _slotFiller;
+        private IConnectionControl _connection;
+
+        public SlotFillerDecoratorDatabase(ISlotFiller slotFiller, IConnectionControl connection) : base(slotFiller) {
+            _slotFiller = slotFiller;
             _connection = connection;
         }
     }

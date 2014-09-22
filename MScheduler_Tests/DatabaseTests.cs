@@ -157,11 +157,12 @@ namespace MScheduler_Tests {
 
             Slot.SlotData data = new Slot.SlotData();
             data.Description = "Description";
-            data.Filler = slotFiller.Object;
+            data.SlotFillerId = slotFiller.Object.SlotFillerId;
             data.IsDeleted = false;
             data.MeetingId = 5;
             data.SortNumber = 10;
             data.Title = "Title";
+            data.SlotType = Slot.enumSlotType.User;
 
             Mock<Slot> slotOld = new Mock<Slot>();
             slotOld.Object.Data = data;
@@ -188,6 +189,7 @@ namespace MScheduler_Tests {
             Assert.AreEqual(slotOld.Object.SlotFillerId, slotNew.Object.SlotFillerId);
             Assert.AreEqual(slotOld.Object.SortNumber, slotNew.Object.SortNumber);
             Assert.AreEqual(slotOld.Object.Title, slotNew.Object.Title);
+            Assert.AreEqual(slotOld.Object.SlotType, slotNew.Object.SlotType);
         }
 
         [TestMethod]
@@ -270,38 +272,6 @@ namespace MScheduler_Tests {
             Assert.AreEqual(userOld.Object.Description, userNew.Object.Description);
             Assert.AreEqual(userOld.Object.Name, userNew.Object.Name);
             Assert.AreNotEqual(0, userNew.Object.SlotFillerId);            
-        }
-
-        [TestMethod]
-        public void DatabaseTests_FactoryReturnsSlotFiller() {
-
-            // Arrange
-            IConnectionControl connection = GetConnection();
-
-            User.UserData data = new User.UserData();
-            data.Name = "UserName";
-            Mock<User> user = new Mock<User>();
-            user.Object.Data = data;
-
-            UserDecoratorDatabase userDatabase = new UserDecoratorDatabase(user.Object, connection);
-
-            Mock<Factory> factory = new Mock<Factory>();
-            factory.Setup(f => f.CreateUser()).Returns(userDatabase);
-            factory.Setup(f => f.CreateAppConnection(It.IsAny<Factory.enumDatabaseInstance>())).Returns(connection);
-
-            PrepForTesting();
-            FactoryDecoratorDatabase database = new FactoryDecoratorDatabase(factory.Object);
-            
-            // Act
-            PrepForTesting();
-            int userId = userDatabase.SaveToSource();
-            userDatabase = new UserDecoratorDatabase(new Mock<User>().Object, connection);
-            userDatabase.LoadFromSource(userId);
-            ISlotFiller slotFiller = database.CreateSlotFiller(userDatabase.SlotFillerId);
-
-            // Assert
-            Assert.AreEqual(slotFiller.SlotFillerId, userDatabase.SlotFillerId);
-            Assert.AreEqual(slotFiller.Description, userDatabase.Description);
         }
 
         [TestMethod]

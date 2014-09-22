@@ -98,6 +98,7 @@ namespace MScheduler_BusTier.Abstract {
                 Slot.SlotData slotData = new Slot.SlotData();
                 slotData.Title = templateSlot.Title;
                 slotData.SortNumber = templateSlot.SortNumber;
+                slotData.SlotType = templateSlot.SlotType;
                 return slotData;
             }
 

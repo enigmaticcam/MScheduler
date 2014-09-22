@@ -28,12 +28,14 @@ namespace MScheduler_Tests {
             TemplateSlot templateSlot = new TemplateSlot();
             templateSlot.Title = "Title1";
             templateSlot.SortNumber = 5;
+            templateSlot.SlotType = Slot.enumSlotType.None;
             templateSlots.Add(templateSlot);
 
             templateSlot = new TemplateSlot();
             templateSlot.Title = "Title2";
             templateSlot.Id = 2;
             templateSlot.SortNumber = 3;
+            templateSlot.SlotType = Slot.enumSlotType.User;
             templateSlots.Add(templateSlot);
 
             Template.TemplateData data = new Template.TemplateData();
@@ -51,6 +53,8 @@ namespace MScheduler_Tests {
             Assert.AreEqual(templateSlots[0].Title, slots[1].Title);
             Assert.AreEqual(templateSlots[1].SortNumber, slots[0].SortNumber);
             Assert.AreEqual(templateSlots[0].SortNumber, slots[1].SortNumber);
+            Assert.AreEqual(templateSlots[1].SlotType, slots[0].SlotType);
+            Assert.AreEqual(templateSlots[0].SlotType, slots[1].SlotType);
         }
     }
 }

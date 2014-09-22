@@ -49,7 +49,7 @@ namespace MScheduler_BusTier.Abstract {
         }
 
         private static IFactory WrapInDecoratorsFactory(Factory factory) {
-            IFactory decoratoedFactory = new FactoryDecoratorDatabase(factory);
+            IFactory decoratoedFactory = factory;
             return decoratoedFactory;
         }
     }
