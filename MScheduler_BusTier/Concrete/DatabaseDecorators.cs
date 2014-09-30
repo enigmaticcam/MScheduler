@@ -664,6 +664,7 @@ namespace MScheduler_BusTier.Abstract {
                 _data.Id = _userId;
                 _data.Name = GetValueFromDataSet("Name").ToString();
                 _data.SlotFillerId = (int)GetValueFromDataSet("SlotFillerId");
+                _data.IsDeleted = (bool)GetValueFromDataSet("IsDeleted");
             }
 
             private object GetValueFromDataSet(string columnName) {
@@ -733,8 +734,9 @@ namespace MScheduler_BusTier.Abstract {
             private void GenerateTableSqlNew() {
                 _sql.AppendLine("select @SlotFillerId = max(SlotFillerId) from " + _connection.DatabaseName + ".dbo.SlotFiller");
                 _sql.AppendLine("");
-                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.[User](Name)");
+                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.[User](Name, IsDeleted)");
                 _sql.Append("values('" + _connection.SqlSafe(_user.Name) + "'");
+                _sql.Append("," + (_user.IsDeleted ? "1" : "0"));
                 _sql.AppendLine(")");
                 _sql.AppendLine("");
                 _sql.AppendLine("select @UserId = max(UserId) from " + _connection.DatabaseName + ".dbo.[User]");
@@ -748,6 +750,7 @@ namespace MScheduler_BusTier.Abstract {
             private void GenerateTableSqlExisting() {
                 _sql.AppendLine("update " + _connection.DatabaseName + ".dbo.[User]");
                 _sql.AppendLine("set Name = " + _connection.SqlSafe(_user.Name) + "'");
+                _sql.AppendLine(", IsDeleted = " + (_user.IsDeleted ? "1" : "0"));
                 _sql.AppendLine("where UserId = " + _user.Id);
                 _sql.AppendLine("");
                 _sql.AppendLine("set @UserId = " + _user.Id);
@@ -877,6 +880,109 @@ namespace MScheduler_BusTier.Abstract {
     public class SlotFillerDecoratorDatabase : SlotFillerDecorator {
         private ISlotFiller _slotFiller;
         private IConnectionControl _connection;
+        private SlotFillers _fillers = new SlotFillers();
+
+        public override Dictionary<int, string> SlotFillersForType(Slot.enumSlotType slotType) {
+            if (_fillers.GetFillers(slotType) == null) {
+                LoadFillers(slotType);                
+            }
+            return _fillers.GetFillers(slotType);
+        }        
+
+        private void LoadFillers(Slot.enumSlotType slotType) {
+            ActionLoadFillers action = new ActionLoadFillers.Builder()
+                .SetConnection(_connection)
+                .SetFiller(_fillers)
+                .SetSlotType(slotType)
+                .Build();
+            action.PerformAction();
+        }
+
+        private class SlotFillers {
+            private Dictionary<Slot.enumSlotType, Dictionary<int, string>> _fillers = new Dictionary<Slot.enumSlotType, Dictionary<int, string>>();
+
+            public Dictionary<int, string> GetFillers(Slot.enumSlotType slotType) {
+                if (_fillers.ContainsKey(slotType)) {
+                    return _fillers[slotType];
+                } else {
+                    return null;
+                }
+            }
+
+            public void AddFiller(Slot.enumSlotType slotType, int slotFillerId, string slotFillerDesc) {
+                if (!_fillers.ContainsKey(slotType)) {
+                    _fillers.Add(slotType, new Dictionary<int, string>());
+                }
+                _fillers[slotType].Add(slotFillerId, slotFillerDesc);
+            }
+        }
+
+        private class ActionLoadFillers {
+            private IConnectionControl _connection;
+            private Slot.enumSlotType _slotType;
+            private SlotFillers _filler;
+            private StringBuilder _sql = new StringBuilder();
+            private DataSet _dataSet;
+
+            public void PerformAction() {
+                BuildFilter();
+                ExecuteSql();
+                PopulateFillers();
+            }
+
+            private void BuildFilter() {
+                switch (_slotType) {
+                    case Slot.enumSlotType.User:
+                        _sql.AppendLine("select F.SlotFillerId as Id, U.Name as [Desc]");
+                        _sql.AppendLine("from " + _connection.DatabaseName + ".dbo.[User] U");
+                        _sql.AppendLine("inner join " + _connection.DatabaseName + ".dbo.SlotFiller F on F.SlotFillerSourceId = U.UserId");
+                        _sql.AppendLine("\tand F.SlotTypeId = 1");
+                        _sql.AppendLine("where U.IsDeleted = 0");
+                        break;
+                }
+            }
+
+            private void ExecuteSql() {
+                _dataSet = _connection.ExecuteDataSet(_sql.ToString());
+            }
+
+            private void PopulateFillers() {
+                foreach (DataRow dr in _dataSet.Tables[0].Rows) {
+                    _filler.AddFiller(_slotType, (int)dr["Id"], dr["Desc"].ToString());
+                }
+            }
+
+            public ActionLoadFillers(Builder builder) {
+                _connection = builder.Connection; ;
+                _slotType = builder.SlotType;
+                _filler = builder.Filler;
+            }
+
+            public class Builder {
+                public IConnectionControl Connection;
+                public Slot.enumSlotType SlotType;
+                public SlotFillers Filler;
+
+                public Builder SetConnection(IConnectionControl connection) {
+                    this.Connection = connection;
+                    return this;
+                }
+
+                public Builder SetSlotType(Slot.enumSlotType slotType) {
+                    this.SlotType = slotType;
+                    return this;
+                }
+
+                public Builder SetFiller(SlotFillers filler) {
+                    this.Filler = filler;
+                    return this;
+                }
+
+                public ActionLoadFillers Build() {
+                    return new ActionLoadFillers(this);
+                }
+            }
+        }
 
         public SlotFillerDecoratorDatabase(ISlotFiller slotFiller, IConnectionControl connection) : base(slotFiller) {
             _slotFiller = slotFiller;

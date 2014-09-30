@@ -6,10 +6,7 @@ using System.Threading.Tasks;
 
 namespace MScheduler_BusTier.Abstract {
     public interface ISlotFiller {
-        int SlotFillerId { get; }
-        int SlotFillerSourceId { get; }
-        string Description { get; }
-        void LoadFromSource(int id);
+        Dictionary<int, string> SlotFillersForType(Slot.enumSlotType slotType);
     }
 
     public interface ISlot {
@@ -29,24 +26,9 @@ namespace MScheduler_BusTier.Abstract {
     }
 
     public class SlotFiller : ISlotFiller {
-        private int _slotFillerId;
-        public int SlotFillerId {
-            get { return _slotFillerId; }
-        }
-
-        private int _slotFillerSourceId;
-        public int SlotFillerSourceId {
-            get { return _slotFillerSourceId; }
-        }
-
-        private string _description;
-        public string Description {
-            get { return _description; }
-        }
-
-        public void LoadFromSource(int id) {
-
-        }
+        public Dictionary<int, string> SlotFillersForType(Slot.enumSlotType slotType) {
+            return null;
+        }        
     }
 
     public class Slot : ISlot {
@@ -131,20 +113,8 @@ namespace MScheduler_BusTier.Abstract {
     public abstract class SlotFillerDecorator : ISlotFiller {
         private ISlotFiller _slotFiller;
 
-        public int SlotFillerId {
-            get { return _slotFiller.SlotFillerId; }
-        }
-
-        public int SlotFillerSourceId {
-            get { return _slotFiller.SlotFillerSourceId; }
-        }
-
-        public string Description {
-            get { return _slotFiller.Description; }
-        }
-
-        public void LoadFromSource(int id) {
-            _slotFiller.LoadFromSource(id);
+        public virtual Dictionary<int, string> SlotFillersForType(Slot.enumSlotType slotType) {
+            return _slotFiller.SlotFillersForType(slotType);
         }
 
         public SlotFillerDecorator(ISlotFiller slotFiller) {

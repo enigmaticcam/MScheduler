@@ -148,16 +148,9 @@ namespace MScheduler_Tests {
             // Arrange
             IConnectionControl connection = GetConnection();
 
-            Mock<ISlotFiller> slotFiller = new Mock<ISlotFiller>();
-            slotFiller.Setup(s => s.SlotFillerId).Returns(1);
-            slotFiller.Setup(s => s.Description).Returns("SlotFiller");
-
-            Mock<IFactory> factory = new Mock<IFactory>();
-            factory.Setup(f => f.CreateSlotFiller(It.IsAny<int>())).Returns(slotFiller.Object);
-
             Slot.SlotData data = new Slot.SlotData();
             data.Description = "Description";
-            data.SlotFillerId = slotFiller.Object.SlotFillerId;
+            data.SlotFillerId = 15;
             data.IsDeleted = false;
             data.MeetingId = 5;
             data.SortNumber = 10;
@@ -168,7 +161,6 @@ namespace MScheduler_Tests {
             slotOld.Object.Data = data;
             SlotDecoratorDatabase database = new SlotDecoratorDatabase.Builder()
                 .SetConnection(connection)
-                .SetFactory(factory.Object)
                 .SetSlot(slotOld.Object)
                 .Build();
 
@@ -178,7 +170,6 @@ namespace MScheduler_Tests {
             Mock<Slot> slotNew = new Mock<Slot>();
             database = new SlotDecoratorDatabase.Builder()
                 .SetConnection(connection)
-                .SetFactory(factory.Object)
                 .SetSlot(slotNew.Object)
                 .Build();
             database.LoadFromSource(slotId);
@@ -256,6 +247,7 @@ namespace MScheduler_Tests {
 
             User.UserData data = new User.UserData();
             data.Name = "Name";
+            data.IsDeleted = true;
 
             Mock<User> userOld = new Mock<User>();
             userOld.Object.Data = data;
@@ -271,6 +263,7 @@ namespace MScheduler_Tests {
             // Assert
             Assert.AreEqual(userOld.Object.Description, userNew.Object.Description);
             Assert.AreEqual(userOld.Object.Name, userNew.Object.Name);
+            Assert.AreEqual(userOld.Object.IsDeleted, userNew.Object.IsDeleted);
             Assert.AreNotEqual(0, userNew.Object.SlotFillerId);            
         }
 
@@ -295,7 +288,43 @@ namespace MScheduler_Tests {
             // Assert
             Assert.AreNotEqual(database.Description, null);
             Assert.AreNotEqual(database.Description, "");
-            
+        }
+
+        [TestMethod]
+        public void DatabaseTests_SlotFillerList_User() {
+
+            // Arrange
+            PrepForTesting();
+            IConnectionControl connection = GetConnection();
+            StringBuilder sql = new StringBuilder();
+            sql.AppendLine("insert into " + connection.DatabaseName + ".dbo.[User](Name, IsDeleted)");
+            sql.AppendLine("values('User1', 0)");
+            sql.AppendLine("insert into " + connection.DatabaseName + ".dbo.[User](Name, IsDeleted)");
+            sql.AppendLine("values('User2', 0)");
+            sql.AppendLine("insert into " + connection.DatabaseName + ".dbo.[User](Name, IsDeleted)");
+            sql.AppendLine("values('User3', 1)");
+            sql.AppendLine("insert into " + connection.DatabaseName + ".dbo.[User](Name, IsDeleted)");
+            sql.AppendLine("values('User4', 0)");
+            sql.AppendLine("insert into " + connection.DatabaseName + ".dbo.SlotFiller(SlotTypeId, SlotFillerSourceId)");
+            sql.AppendLine("values(1, 1)");
+            sql.AppendLine("insert into " + connection.DatabaseName + ".dbo.SlotFiller(SlotTypeId, SlotFillerSourceId)");
+            sql.AppendLine("values(1, 2)");
+            sql.AppendLine("insert into " + connection.DatabaseName + ".dbo.SlotFiller(SlotTypeId, SlotFillerSourceId)");
+            sql.AppendLine("values(1, 3)");
+            sql.AppendLine("insert into " + connection.DatabaseName + ".dbo.SlotFiller(SlotTypeId, SlotFillerSourceId)");
+            sql.AppendLine("values(2, 4)");
+            connection.ExecuteNonQuery(sql.ToString());
+
+            Mock<ISlotFiller> view = new Mock<ISlotFiller>();
+            SlotFillerDecoratorDatabase database = new SlotFillerDecoratorDatabase(view.Object, connection);
+
+            // Act            
+            Dictionary<int, string> fillers = database.SlotFillersForType(Slot.enumSlotType.User);
+
+            // Assert
+            Assert.AreEqual(2, fillers.Count);
+            Assert.AreEqual("User1", fillers[1]);
+            Assert.AreEqual("User2", fillers[2]);
         }
     }
 }

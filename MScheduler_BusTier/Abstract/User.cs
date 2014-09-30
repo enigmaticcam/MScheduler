@@ -12,6 +12,7 @@ namespace MScheduler_BusTier.Abstract {
         int SlotFillerSourceId { get; }
         string Description { get; }
         string Name { get; }
+        bool IsDeleted { get; }
         void LoadFromSource(int id);
         int SaveToSource();
     }
@@ -43,6 +44,10 @@ namespace MScheduler_BusTier.Abstract {
             get { return this.Name; }
         }
 
+        public bool IsDeleted {
+            get { return _data.IsDeleted; }
+        }
+
         public void LoadFromSource(int id) {
             // To be implemented by decorator
         }
@@ -64,6 +69,7 @@ namespace MScheduler_BusTier.Abstract {
             public int Id { get; set; }
             public int SlotFillerId { get; set; }
             public string Name { get; set; }
+            public bool IsDeleted { get; set; }
         }
     }
 
@@ -92,6 +98,10 @@ namespace MScheduler_BusTier.Abstract {
 
         public virtual string Description {
             get { return _user.Description; }
+        }
+
+        public virtual bool IsDeleted {
+            get { return _user.IsDeleted; }
         }
 
         public UserDecorator(IUser user) {
