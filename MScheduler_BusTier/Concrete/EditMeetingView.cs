@@ -23,6 +23,7 @@ namespace MScheduler_BusTier.Concrete {
     public class EditMeetingView : IEditMeetingView {
         private Meeting.MeetingData _data;
         private IFactory _factory;
+        private ISlotFiller _slotFiller;
 
         public int Id {
             get { return _data.Id; }
@@ -83,11 +84,18 @@ namespace MScheduler_BusTier.Concrete {
                     baton.Description = slot.Description;
                     baton.SortNumber = slot.SortNumber;
                     baton.SlotType = slot.SlotType.ToString();
+                    baton.SlotFillers = new List<SelectionItem>();
+                    baton.SlotFillers.Add(new SelectionItem("Empty", "0", false, (slot.SlotFillerId == 0)));
+                    foreach (KeyValuePair<int, string> slotFiller in _slotFiller.SlotFillersForType(slot.SlotType)) {
+                        baton.SlotFillers.Add(new SelectionItem(slotFiller.Value, slotFiller.Key.ToString(), false, (slot.SlotFillerId == slotFiller.Key)));
+                    }
                     yield return baton;
                 }
             }
             set {
-
+                foreach (ISlot slot in _data.Slots.OrderBy(s => s.SortNumber)) {
+                    
+                }
             }
         }
 
@@ -110,8 +118,9 @@ namespace MScheduler_BusTier.Concrete {
 
         }
 
-        public EditMeetingView(IFactory factory) {
+        public EditMeetingView(IFactory factory, ISlotFiller slotFiller) {
             _factory = factory;
+            _slotFiller = slotFiller;
         }
 
         public class CreateMeeting {
@@ -133,10 +142,10 @@ namespace MScheduler_BusTier.Concrete {
             public int SlotId { get; set; }
             public string Title { get; set; }
             public string Description { get; set; }
-            public string SlotFillerId { get; set; }
-            public string FillerDescription { get; set; }
+            public int SlotFillerId { get; set; }
             public int SortNumber { get; set; }
             public string SlotType { get; set; }
+            public List<SelectionItem> SlotFillers { get; set; }
         }
     }
 

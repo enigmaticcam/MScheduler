@@ -9,6 +9,7 @@ namespace MScheduler_BusTier.Concrete {
         public string Text { get; set; }
         public string Value { get; set; }
         public bool IsDisabled { get; set; }
+        public bool IsSelected { get; set; }
 
         public SelectionItem() {
 
@@ -23,6 +24,13 @@ namespace MScheduler_BusTier.Concrete {
             this.Text = text;
             this.Value = value;
             this.IsDisabled = isDisabled;
+        }
+
+        public SelectionItem(string text, string value, bool isDisabled, bool isSelected) {
+            this.Text = text;
+            this.Value = value;
+            this.IsDisabled = isDisabled;
+            this.IsSelected = isSelected;
         }
     }
 }

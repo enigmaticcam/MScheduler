@@ -162,7 +162,9 @@
     <Compile Include="Controllers\EditTemplateController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\EditMeetingController.cs" />
-    <Compile Include="Controllers\MonthsController.cs" />
+    <Compile Include="Controllers\MonthsController.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -231,7 +233,8 @@
     <Content Include="Views\Months\CreateMeetingConfirm.cshtml" />
     <Content Include="Views\EditMeeting\Meeting.cshtml" />
     <Content Include="Views\Controls\MeetingProperties.cshtml" />
-    <Content Include="Views\Controls\MeetingSlots.cshtml" />
+    <Content Include="Views\Controls\MeetingSlotsTable.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\MeetingSlots.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

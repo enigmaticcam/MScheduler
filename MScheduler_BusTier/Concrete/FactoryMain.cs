@@ -50,9 +50,9 @@ namespace MScheduler_BusTier.Concrete {
             return WrapInDecoratorsSlot(slot);
         }
 
-        public override ISlotFiller CreateSlotFiller(int id) {
-            // To be implemented in database decorator
-            return null;
+        public override ISlotFiller CreateSlotFiller() {
+            SlotFiller slotFiller = new SlotFiller();
+            return WrapInDecoratorsSlotFiller(slotFiller);
         }
 
         public override ITemplate CreateTemplate() {
@@ -71,7 +71,7 @@ namespace MScheduler_BusTier.Concrete {
         }
 
         public override IEditMeetingView CreateEditMeetingView() {
-            EditMeetingView meetingView = new EditMeetingView(this);
+            EditMeetingView meetingView = new EditMeetingView(this, this.CreateSlotFiller());
             return WrapInDecoratorsEditMeetingView(meetingView);
         }
 
@@ -130,6 +130,12 @@ namespace MScheduler_BusTier.Concrete {
         private IMonthSelectorView WrapInDecoratorsMonthSelectorView(MonthSelectorView monthSelector) {
             IMonthSelectorView decorated = monthSelector;
             decorated = new MonthSelectorViewDecoratorDatabase(decorated, this.CreateAppConnection(this.DatabaseInstance));
+            return decorated;
+        }
+
+        private ISlotFiller WrapInDecoratorsSlotFiller(SlotFiller slotFiller) {
+            ISlotFiller decorated = slotFiller;
+            decorated = new SlotFillerDecoratorDatabase(decorated, this.CreateAppConnection(this.DatabaseInstance));
             return decorated;
         }
     }

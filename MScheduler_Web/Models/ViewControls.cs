@@ -88,6 +88,18 @@ namespace MScheduler_Web.Models {
         }
     }
 
+    public class BatonSlots {
+        public int MeetingId { get; set; }
+
+        public List<BatonSlot> Slots { get; set; }
+        public List<EditMeetingView.BatonSlot> Export() {
+            return
+                (from n in this.Slots
+                 select n.Export()).ToList();
+        }
+
+    }
+
     public class BatonSlot {
         public int SlotId { get; set; }
         public string Title { get; set; }
@@ -95,15 +107,22 @@ namespace MScheduler_Web.Models {
         public string SlotFillerId { get; set; }
         public int SortNumber { get; set; }
         public string SlotType { get; set; }
-        public IEnumerable<SelectListItem> SlotFillers { get; set; }
+        public List<SelectListItem> SlotFillers { get; set; }
 
-        public void Import(EditMeetingView.BatonSlot batonSlot, IEnumerable<SelectListItem> slotFillers) {
+        public void Import(EditMeetingView.BatonSlot batonSlot) {
             this.SlotId = batonSlot.SlotId;
             this.Title = batonSlot.Title;
             this.Description = batonSlot.Description;
             this.SortNumber = batonSlot.SortNumber;
             this.SlotType = batonSlot.SlotType;
-            this.SlotFillers = slotFillers;
+            this.SlotFillers = new List<SelectListItem>();
+            foreach (SelectionItem item in batonSlot.SlotFillers) {
+                SelectListItem selectItem = new SelectListItem();
+                selectItem.Text = item.Text;
+                selectItem.Value = item.Value;
+                selectItem.Selected = item.IsSelected;
+                this.SlotFillers.Add(selectItem);
+            }
         }
 
         public EditMeetingView.BatonSlot Export() {

@@ -81,8 +81,18 @@ namespace MScheduler_Web.Models {
             return _data.ViewBuilder.DisplayMeetingProperties(_data.EditMeetingView.BatonMeeting);
         }
 
-        public MvcHtmlString DisplayMeetingSlots() {
-            return _data.ViewBuilder.DisplayMeetingSlots(_data.EditMeetingView.BatonSlots.ToList());
+        public MvcHtmlString DisplayMeetingSlotsTable() {
+            BatonSlots batons = new BatonSlots();
+            List<BatonSlot> slots = new List<BatonSlot>();
+            foreach (EditMeetingView.BatonSlot baton in _data.EditMeetingView.BatonSlots) {
+                BatonSlot slot = new BatonSlot();
+                slot.Import(baton);
+                slots.Add(slot);
+            }
+
+            batons.MeetingId = _data.EditMeetingView.Id;
+            batons.Slots = slots;
+            return _data.ViewBuilder.DisplayMeetingSlotsTable(batons);
         }
 
         private List<SelectListItem> ConvertEnumToSelectList<TEnum>(TEnum selectedValue) {

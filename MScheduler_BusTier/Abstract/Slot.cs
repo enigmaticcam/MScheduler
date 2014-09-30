@@ -14,8 +14,8 @@ namespace MScheduler_BusTier.Abstract {
         Slot.enumSlotType SlotType { get; }
         int Id { get; }
         int MeetingId { get; set; }
-        string Title { get; }
-        string Description { get; }
+        string Title { get; set; }
+        string Description { get; set; }
         int SortNumber { get; }
         int SlotFillerId { get; }
         bool CanFillSlot { get; }
@@ -61,10 +61,12 @@ namespace MScheduler_BusTier.Abstract {
 
         public string Title {
             get { return _slotData.Title; }
+            set { _slotData.Title = value; }
         }
 
         public string Description {
             get { return _slotData.Description; }
+            set { _slotData.Description = value; }
         }
 
         public int SortNumber {
@@ -147,10 +149,12 @@ namespace MScheduler_BusTier.Abstract {
 
         public virtual string Title {
             get { return _slot.Title; }
+            set { _slot.Title = value; }
         }
 
         public virtual string Description {
             get { return _slot.Description; }
+            set { _slot.Description = value; }
         }
 
         public virtual int SortNumber {

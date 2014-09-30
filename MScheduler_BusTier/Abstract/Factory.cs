@@ -13,7 +13,7 @@ namespace MScheduler_BusTier.Abstract {
         ISlot CreateSlot();
         IMeeting CreateMeeting();
         ITemplate CreateTemplate();
-        ISlotFiller CreateSlotFiller(int id);
+        ISlotFiller CreateSlotFiller();
         IUser CreateUser();
         IEditTemplateView CreateEditTemplateView();
         IEditMeetingView CreateEditMeetingView();
@@ -32,7 +32,7 @@ namespace MScheduler_BusTier.Abstract {
         public abstract ISlot CreateSlot();
         public abstract IMeeting CreateMeeting();
         public abstract ITemplate CreateTemplate();
-        public abstract ISlotFiller CreateSlotFiller(int id);
+        public abstract ISlotFiller CreateSlotFiller();
         public abstract IUser CreateUser();
         public abstract IEditTemplateView CreateEditTemplateView();
         public abstract IEditMeetingView CreateEditMeetingView();
@@ -80,8 +80,8 @@ namespace MScheduler_BusTier.Abstract {
             return _factory.CreateTemplate();
         }
 
-        public virtual ISlotFiller CreateSlotFiller(int id) {
-            return _factory.CreateSlotFiller(id);
+        public virtual ISlotFiller CreateSlotFiller() {
+            return _factory.CreateSlotFiller();
         }
 
         public virtual IUser CreateUser() {

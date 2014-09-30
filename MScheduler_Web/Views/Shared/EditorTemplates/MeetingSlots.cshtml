@@ -1,5 +1,5 @@
-﻿@using MScheduler_BusTier.Concrete
-@model List<EditMeetingView.BatonSlot>
+﻿@using MScheduler_Web.Models
+@model List<BatonSlot>
 
 <div class="container-fluid">
     <div class="row">
@@ -7,13 +7,13 @@
             <label>Slot Type</label>
         </div>
         <div class="col-sm-3">
+            <label>Filler Description</label>
+        </div>
+        <div class="col-sm-3">
             <label>Title</label>
         </div>
         <div class="col-sm-3">
             <label>Description</label>
-        </div>
-        <div class="col-sm-3">
-            <label>Filler Description</label>
         </div>
         <div class="col-sm-1">
             <label>Sort Number</label>
@@ -25,13 +25,13 @@
                 @Html.DisplayTextFor(m => m[i].SlotType)
             </div>
             <div class="col-sm-3">
+                @Html.DropDownListFor(m => m[i].SlotFillerId, Model[i].SlotFillers, new { @class = "form-control" })
+            </div>
+            <div class="col-sm-3">
                 @Html.TextBoxFor(m => m[i].Title, new { @class = "form-control" })
             </div>
             <div class="col-sm-3">
                 @Html.TextBoxFor(m => m[i].Description, new { @class = "form-control" })
-            </div>
-            <div class="col-sm-3">
-                @Html.DisplayTextFor(m => m[i].FillerDescription)
             </div>
             <div class="col-sm-1">
                 @Html.TextBoxFor(m => m[i].SortNumber, new { @class = "form-control" })
