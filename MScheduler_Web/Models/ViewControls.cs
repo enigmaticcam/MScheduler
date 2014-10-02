@@ -41,9 +41,9 @@ namespace MScheduler_Web.Models {
 
         public List<BatonTemplateSlot> TemplateSlots { get; set; }
         public List<TemplateSlot> Export() {
-            return 
+            return
                 (from n in this.TemplateSlots
-                select n.Export()).ToList();
+                 select n.Export()).ToList();
         }
     }
 
@@ -88,16 +88,37 @@ namespace MScheduler_Web.Models {
         }
     }
 
-    public class BatonSlots {
+    public class BatonMeeting {
         public int MeetingId { get; set; }
+        public string Description { get; set; }
+        public DateTime Date { get; set; }
+        public bool IsDeleted { get; set; }
+        public List<BatonSlot> BatonSlots { get; set; }
 
-        public List<BatonSlot> Slots { get; set; }
-        public List<EditMeetingView.BatonSlot> Export() {
-            return
-                (from n in this.Slots
-                 select n.Export()).ToList();
+        public void Import(EditMeetingView.Baton baton) {
+            this.MeetingId = baton.Id;
+            this.Description = baton.Description;
+            this.Date = baton.Date;
+            this.IsDeleted = baton.IsDeleted;
+            this.BatonSlots = new List<BatonSlot>();
+            foreach (EditMeetingView.BatonSlot batonSlot in baton.BatonSlots) {
+                BatonSlot newSlot = new BatonSlot();
+                newSlot.Import(batonSlot);
+                this.BatonSlots.Add(newSlot);
+            }
         }
 
+        public EditMeetingView.Baton Export() {
+            EditMeetingView.Baton baton = new EditMeetingView.Baton();
+            baton.Id = this.MeetingId;
+            baton.Description = this.Description;
+            baton.Date = this.Date;
+            baton.IsDeleted = this.IsDeleted;
+            baton.BatonSlots =
+                (from n in this.BatonSlots
+                 select n.Export()).ToList();
+            return baton;
+        }
     }
 
     public class BatonSlot {

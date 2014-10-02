@@ -14,7 +14,6 @@ namespace MScheduler_BusTier.Concrete {
         bool HasChanged { get; }
         EditMeetingView.Baton BatonMeeting { get; set; }
         EditMeetingView.CreateMeeting BatonCreateMeeting { set; }
-        IEnumerable<EditMeetingView.BatonSlot> BatonSlots { get; set; }
         Dictionary<int, string> Meetings { get; set; }
         void SetMeeting(int id);
         void LoadFromSource();
@@ -49,10 +48,38 @@ namespace MScheduler_BusTier.Concrete {
                 baton.Description = _data.Description;
                 baton.Date = _data.Date;
                 baton.IsDeleted = _data.IsDeleted;
+                List<EditMeetingView.BatonSlot> slots = new List<BatonSlot>();
+                foreach (ISlot slot in _data.Slots.OrderBy(s => s.SortNumber)) {
+                    BatonSlot batonSlot = new BatonSlot();
+                    batonSlot.SlotId = slot.Id;
+                    batonSlot.Title = slot.Title;
+                    batonSlot.Description = slot.Description;
+                    batonSlot.SortNumber = slot.SortNumber;
+                    batonSlot.SlotType = slot.SlotType.ToString();
+                    batonSlot.SlotFillers = new List<SelectionItem>();
+                    batonSlot.SlotFillers.Add(new SelectionItem("Empty", "0", false, (slot.SlotFillerId == 0)));
+                    batonSlot.IsDisabled = false;
+                    foreach (KeyValuePair<int, string> slotFiller in _slotFiller.SlotFillersForType(slot.SlotType)) {
+                        batonSlot.SlotFillers.Add(new SelectionItem(slotFiller.Value, slotFiller.Key.ToString(), false, (slot.SlotFillerId == slotFiller.Key)));
+                    }
+                    slots.Add(batonSlot);
+                }
+                baton.BatonSlots = slots;
                 return baton;
             }
             set {
-
+                _data.Description = value.Description;
+                _data.IsDeleted = value.IsDeleted;
+                foreach (EditMeetingView.BatonSlot batonSlot in value.BatonSlots) {
+                    if (!batonSlot.IsDisabled) {
+                        ISlot slot = _data.Slots.Where(s => s.Id == batonSlot.SlotId).First();
+                        slot.Description = batonSlot.Description;
+                        slot.Title = batonSlot.Title;
+                        slot.SortNumber = batonSlot.SortNumber;
+                        slot.FillSlot(batonSlot.SlotFillerId);
+                    }
+                }
+                _hasChanged = true;
             }
         }
 
@@ -72,38 +99,6 @@ namespace MScheduler_BusTier.Concrete {
                 meeting = _factory.CreateMeeting();
                 meeting.LoadFromSource(meetingId);
                 _data = meeting.Data;
-            }
-        }
-
-        public IEnumerable<EditMeetingView.BatonSlot> BatonSlots {
-            get {
-                foreach (ISlot slot in _data.Slots.OrderBy(s => s.SortNumber)) {
-                    BatonSlot baton = new BatonSlot();
-                    baton.SlotId = slot.Id;
-                    baton.Title = slot.Title;
-                    baton.Description = slot.Description;
-                    baton.SortNumber = slot.SortNumber;
-                    baton.SlotType = slot.SlotType.ToString();
-                    baton.SlotFillers = new List<SelectionItem>();
-                    baton.SlotFillers.Add(new SelectionItem("Empty", "0", false, (slot.SlotFillerId == 0)));
-                    baton.IsDisabled = false;
-                    foreach (KeyValuePair<int, string> slotFiller in _slotFiller.SlotFillersForType(slot.SlotType)) {
-                        baton.SlotFillers.Add(new SelectionItem(slotFiller.Value, slotFiller.Key.ToString(), false, (slot.SlotFillerId == slotFiller.Key)));
-                    }
-                    yield return baton;
-                }
-            }
-            set {
-                foreach (EditMeetingView.BatonSlot batonSlot in value) {
-                    if (!batonSlot.IsDisabled) {
-                        ISlot slot = _data.Slots.Where(s => s.Id == batonSlot.SlotId).First();
-                        slot.Description = batonSlot.Description;
-                        slot.Title = batonSlot.Title;
-                        slot.SortNumber = batonSlot.SortNumber;
-                        slot.FillSlot(batonSlot.SlotFillerId);
-                    }
-                }
-                _hasChanged = true;
             }
         }
 
@@ -144,6 +139,7 @@ namespace MScheduler_BusTier.Concrete {
             public string Description { get; set; }
             public DateTime Date { get; set; }
             public bool IsDeleted { get; set; }
+            public List<EditMeetingView.BatonSlot> BatonSlots { get; set; }
         }
 
         public class BatonSlot {
@@ -189,11 +185,6 @@ namespace MScheduler_BusTier.Concrete {
         public virtual EditMeetingView.Baton BatonMeeting {
             get { return _meeting.BatonMeeting; }
             set { _meeting.BatonMeeting = value; }
-        }
-
-        public virtual IEnumerable<EditMeetingView.BatonSlot> BatonSlots {
-            get { return _meeting.BatonSlots; }
-            set { _meeting.BatonSlots = value; }
         }
 
         public virtual void SetMeeting(int id) {

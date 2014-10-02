@@ -1,19 +1,33 @@
-﻿@using MScheduler_BusTier.Concrete
-@model EditMeetingView.Baton
+﻿@using MScheduler_Web.Models
+@model BatonMeeting
 
-@using (Html.BeginForm()) {
-    <div class="container-fluid">
-        <div class="row">
-            <label>Meeting Id</label>
-            <div>@Html.DisplayTextFor(m => m.Id)</div>
-        </div>
-        <div class="row">
-            <label>Description</label>
-            @Html.TextBoxFor(m => m.Description, new { @class="form-control"})
-        </div>
-        <div class="row">
-            <label>Date</label>
-            <div>@Html.DisplayTextFor(m => m.Date)</div>
+@using (Html.BeginForm("EditMeeting", "EditMeeting")) {
+    @Html.HiddenFor(m => m.MeetingId)
+    <input type="submit" class="btn btn-primary"  value="Update"/>
+    <div class="panel panel-default">
+        <div class="panel-heading">Meeting Details</div>
+        <div class="panel-body">
+            <div class="container-fluid">
+                <div class="row">
+                    <label>Meeting Id</label>
+                    <div>@Html.DisplayTextFor(m => m.MeetingId)</div>
+                </div>
+                <div class="row">
+                    <label>Description</label>
+                    @Html.TextBoxFor(m => m.Description, new { @class = "form-control" })
+                </div>
+                <div class="row">
+                    <label>Date</label>
+                    <div>@Html.DisplayTextFor(m => m.Date)</div>
+                </div>
+            </div>
         </div>
     </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">Meeting Slots</div>
+        <div class="panel-body">
+            @Html.EditorFor(m => m.BatonSlots, "MeetingSlotsTable")
+        </div>
+    </div>
+    
 }

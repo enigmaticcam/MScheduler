@@ -21,9 +21,9 @@ namespace MScheduler_Web.Controllers {
             return RedirectToAction("Meeting", new { id = viewState.CurrentEditMeetingView.Id });
         }
 
-        public ActionResult EditSlots(BatonSlots baton) {
+        public ActionResult EditMeeting(BatonMeeting baton) {
             ViewState viewState = GetViewState();
-            viewState.CurrentEditMeetingView.BatonSlots = baton.Export();
+            viewState.CurrentEditMeetingView.BatonMeeting = baton.Export();
             return RedirectToAction("Meeting", new { id = baton.MeetingId });
         }
 

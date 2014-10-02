@@ -8,16 +8,4 @@
     <button type="button" class="btn btn-success" onclick="location.href='@Url.Action("Save", new { id = Model.CurrentEditMeetingView.Id})'">Save</button>
 }
 <br /><br />
-<div class="panel panel-default">
-    <div class="panel-heading">Meeting Details</div>
-    <div class="panel-body">
-        @Model.DisplayMeetingProperties()
-    </div>    
-</div>
-
-<div class="panel panel-default">
-    <div class="panel-heading">Meeting Slots</div>
-    <div class="panel-body">
-        @Model.DisplayMeetingSlotsTable()
-    </div>
-</div>
+@Model.DisplayMeetingProperties()
