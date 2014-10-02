@@ -1,0 +1,43 @@
+﻿@using MScheduler_Web.Models
+@model BatonCreateMeeting
+
+@using (Html.BeginForm("CreateMeeting", "EditMeeting")) {
+    <div class="container-fluid">
+        <div class="row">
+            <label>Description</label>
+            @Html.TextBoxFor(m => m.Description, new { @class = "form-control" })
+        </div>
+        <div class="row">
+            <label>Date</label>            
+            @Html.TextBoxFor(m => m.Date, "{0:d MMM yyyy}", new { @class = "form-control", @readonly = "readonly" })
+        </div>
+        <div class="row">
+            @Html.CheckBoxFor(m => m.UseTemplate, new { @id = "chkUseTemplate" })
+            <label>Use Template?</label>
+        </div>
+        <div class="row">
+            <label>Template</label>
+            @Html.DropDownListFor(m => m.TemplateId, Model.Templates, new { @class = "form-control", @id = "drpTemplate" })
+        </div>
+    </div>
+    <br />
+    <input type="submit" class="btn btn-primary" value="Create Meeting" />
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        EnableTemplate();
+
+        $('#chkUseTemplate').click(function () {
+            EnableTemplate();
+        });
+
+        function EnableTemplate() {
+            if ($('#chkUseTemplate').is(':checked')) {
+                $('#drpTemplate').removeAttr('disabled', 'disabled');
+            } else {
+                $('#drpTemplate').attr('disabled', 'disabled'); 
+            }
+        }
+    });
+</script>

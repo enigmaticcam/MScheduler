@@ -1,0 +1,9 @@
+﻿@using MScheduler_Web.Models
+@model BatonSlots
+
+@using (Html.BeginForm("EditSlots", "EditMeeting", FormMethod.Post)) {
+    <input type="submit" class="btn btn-primary" value="Update" />
+    <br /><br />
+    @Html.HiddenFor(m => m.MeetingId)
+    @Html.EditorFor(m => m.Slots, "MeetingSlots")
+}

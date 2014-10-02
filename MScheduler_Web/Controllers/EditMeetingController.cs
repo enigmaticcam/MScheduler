@@ -26,5 +26,10 @@ namespace MScheduler_Web.Controllers {
             viewState.CurrentEditMeetingView.BatonSlots = baton.Export();
             return RedirectToAction("Meeting", new { id = baton.MeetingId });
         }
+
+        public ActionResult RefreshWithId(int id) {
+            GetViewState(true);
+            return RedirectToAction("Meeting", new { id = id });
+        }
 	}
 }

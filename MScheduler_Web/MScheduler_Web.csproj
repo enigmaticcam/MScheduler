@@ -198,6 +198,10 @@
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
+    <Content Include="Views\Controls\CreateMeeting.cshtml" />
+    <Content Include="Views\Controls\MeetingSlotsTable.cshtml">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -229,11 +233,9 @@
     <Content Include="Views\Controls\MeetingCalendar.cshtml" />
     <Content Include="Views\Months\Index.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\MonthSelector.cshtml" />
-    <Content Include="Views\Controls\CreateMeeting.cshtml" />
     <Content Include="Views\Months\CreateMeetingConfirm.cshtml" />
     <Content Include="Views\EditMeeting\Meeting.cshtml" />
     <Content Include="Views\Controls\MeetingProperties.cshtml" />
-    <Content Include="Views\Controls\MeetingSlotsTable.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\MeetingSlots.cshtml" />
   </ItemGroup>
   <ItemGroup>

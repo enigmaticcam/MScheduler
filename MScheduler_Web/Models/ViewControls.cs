@@ -104,9 +104,10 @@ namespace MScheduler_Web.Models {
         public int SlotId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public string SlotFillerId { get; set; }
+        public int SlotFillerId { get; set; }
         public int SortNumber { get; set; }
         public string SlotType { get; set; }
+        public bool IsDisabled { get; set; }
         public List<SelectListItem> SlotFillers { get; set; }
 
         public void Import(EditMeetingView.BatonSlot batonSlot) {
@@ -116,6 +117,8 @@ namespace MScheduler_Web.Models {
             this.SortNumber = batonSlot.SortNumber;
             this.SlotType = batonSlot.SlotType;
             this.SlotFillers = new List<SelectListItem>();
+            this.IsDisabled = batonSlot.IsDisabled;
+            this.SlotFillerId = batonSlot.SlotFillerId;
             foreach (SelectionItem item in batonSlot.SlotFillers) {
                 SelectListItem selectItem = new SelectListItem();
                 selectItem.Text = item.Text;
@@ -132,6 +135,8 @@ namespace MScheduler_Web.Models {
             batonSlot.Description = this.Description;
             batonSlot.SortNumber = this.SortNumber;
             batonSlot.SlotType = this.SlotType;
+            batonSlot.IsDisabled = this.IsDisabled;
+            batonSlot.SlotFillerId = this.SlotFillerId;
             return batonSlot;
         }
     }

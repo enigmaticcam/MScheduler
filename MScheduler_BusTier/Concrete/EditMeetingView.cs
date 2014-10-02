@@ -86,6 +86,7 @@ namespace MScheduler_BusTier.Concrete {
                     baton.SlotType = slot.SlotType.ToString();
                     baton.SlotFillers = new List<SelectionItem>();
                     baton.SlotFillers.Add(new SelectionItem("Empty", "0", false, (slot.SlotFillerId == 0)));
+                    baton.IsDisabled = false;
                     foreach (KeyValuePair<int, string> slotFiller in _slotFiller.SlotFillersForType(slot.SlotType)) {
                         baton.SlotFillers.Add(new SelectionItem(slotFiller.Value, slotFiller.Key.ToString(), false, (slot.SlotFillerId == slotFiller.Key)));
                     }
@@ -93,9 +94,16 @@ namespace MScheduler_BusTier.Concrete {
                 }
             }
             set {
-                foreach (ISlot slot in _data.Slots.OrderBy(s => s.SortNumber)) {
-                    
+                foreach (EditMeetingView.BatonSlot batonSlot in value) {
+                    if (!batonSlot.IsDisabled) {
+                        ISlot slot = _data.Slots.Where(s => s.Id == batonSlot.SlotId).First();
+                        slot.Description = batonSlot.Description;
+                        slot.Title = batonSlot.Title;
+                        slot.SortNumber = batonSlot.SortNumber;
+                        slot.FillSlot(batonSlot.SlotFillerId);
+                    }
                 }
+                _hasChanged = true;
             }
         }
 
@@ -145,6 +153,7 @@ namespace MScheduler_BusTier.Concrete {
             public int SlotFillerId { get; set; }
             public int SortNumber { get; set; }
             public string SlotType { get; set; }
+            public bool IsDisabled { get; set; }
             public List<SelectionItem> SlotFillers { get; set; }
         }
     }

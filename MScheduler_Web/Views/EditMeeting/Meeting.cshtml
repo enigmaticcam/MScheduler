@@ -1,6 +1,13 @@
 ﻿@using MScheduler_Web.Models
 @model ViewState
 
+
+<button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("RefreshWithId", new { id = Model.CurrentEditMeetingView.Id})'">Refresh</button>
+<button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Delete", new { id = Model.CurrentEditMeetingView.Id})'">Delete</button>
+@if (Model.CurrentEditMeetingView.HasChanged) {
+    <button type="button" class="btn btn-success" onclick="location.href='@Url.Action("Save", new { id = Model.CurrentEditMeetingView.Id})'">Save</button>
+}
+<br /><br />
 <div class="panel panel-default">
     <div class="panel-heading">Meeting Details</div>
     <div class="panel-body">

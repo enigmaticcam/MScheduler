@@ -16,7 +16,7 @@ namespace MScheduler_BusTier.Abstract {
         int MeetingId { get; set; }
         string Title { get; set; }
         string Description { get; set; }
-        int SortNumber { get; }
+        int SortNumber { get; set; }
         int SlotFillerId { get; }
         bool CanFillSlot { get; }
         bool IsDeleted { get; }
@@ -71,6 +71,7 @@ namespace MScheduler_BusTier.Abstract {
 
         public int SortNumber {
             get { return _slotData.SortNumber; }
+            set { _slotData.SortNumber = value; }
         }
 
         public int SlotFillerId {
@@ -159,6 +160,7 @@ namespace MScheduler_BusTier.Abstract {
 
         public virtual int SortNumber {
             get { return _slot.SortNumber; }
+            set { _slot.SortNumber = value; }
         }
 
         public virtual bool CanFillSlot {
