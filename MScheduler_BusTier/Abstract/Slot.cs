@@ -11,7 +11,7 @@ namespace MScheduler_BusTier.Abstract {
 
     public interface ISlot {
         Slot.SlotData Data { set; }
-        Slot.enumSlotType SlotType { get; }
+        Slot.enumSlotType SlotType { get; set; }
         int Id { get; }
         int MeetingId { get; set; }
         string Title { get; set; }
@@ -32,7 +32,7 @@ namespace MScheduler_BusTier.Abstract {
     }
 
     public class Slot : ISlot {
-        private SlotData _slotData;
+        private SlotData _slotData = new SlotData();
         protected SlotData PrivateData {
             get { return _slotData; }
             set { _slotData = value; }
@@ -48,6 +48,11 @@ namespace MScheduler_BusTier.Abstract {
 
         public Slot.enumSlotType SlotType {
             get { return _slotData.SlotType; }
+            set {
+                if (_slotData.Id <= 0) {
+                    _slotData.SlotType = value; 
+                }                
+            }
         }
 
         public int Id {
@@ -137,6 +142,7 @@ namespace MScheduler_BusTier.Abstract {
 
         public virtual Slot.enumSlotType SlotType {
             get { return _slot.SlotType; }
+            set { _slot.SlotType = value; }
         }
 
         public virtual int Id {

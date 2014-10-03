@@ -32,5 +32,19 @@ namespace MScheduler_BusTier.Concrete {
             this.IsDisabled = isDisabled;
             this.IsSelected = isSelected;
         }
+
+        public static List<SelectionItem> ConvertEnumToSelectionItem<TEnum>(TEnum selectedValue) {
+            List<SelectionItem> items = new List<SelectionItem>();
+            string[] keys = Enum.GetNames(typeof(TEnum));
+            Array values = Enum.GetValues(typeof(TEnum));
+            for (int i = 0; i <= keys.GetUpperBound(0); i++) {
+                SelectionItem item = new SelectionItem(keys[i], ((int)values.GetValue(i)).ToString());
+                if (item.Text == selectedValue.ToString()) {
+                    item.IsSelected = true;
+                }
+                items.Add(item);
+            }
+            return items;
+        }
     }
 }

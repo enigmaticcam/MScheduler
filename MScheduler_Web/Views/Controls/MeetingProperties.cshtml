@@ -27,6 +27,7 @@
         <div class="panel-heading">Meeting Slots</div>
         <div class="panel-body">
             @Html.EditorFor(m => m.BatonSlots, "MeetingSlotsTable")
+            <input type="button" class="btn btn-primary" value="Create Slot" onclick="location.href='@Url.Action("CreateSlot", new { id = Model.MeetingId})'" />
         </div>
     </div>
     

@@ -16,7 +16,9 @@ namespace MScheduler_BusTier.Concrete {
         EditMeetingView.CreateMeeting BatonCreateMeeting { set; }
         Dictionary<int, string> Meetings { get; set; }
         void SetMeeting(int id);
+        void CreateSlot();
         void LoadFromSource();
+        void Save();
     }
     
     public class EditMeetingView : IEditMeetingView {
@@ -47,7 +49,7 @@ namespace MScheduler_BusTier.Concrete {
                 baton.Id = _data.Id;
                 baton.Description = _data.Description;
                 baton.Date = _data.Date;
-                baton.IsDeleted = _data.IsDeleted;
+                baton.IsDeleted = _data.IsDeleted;                
                 List<EditMeetingView.BatonSlot> slots = new List<BatonSlot>();
                 foreach (ISlot slot in _data.Slots.OrderBy(s => s.SortNumber)) {
                     BatonSlot batonSlot = new BatonSlot();
@@ -55,10 +57,15 @@ namespace MScheduler_BusTier.Concrete {
                     batonSlot.Title = slot.Title;
                     batonSlot.Description = slot.Description;
                     batonSlot.SortNumber = slot.SortNumber;
-                    batonSlot.SlotType = slot.SlotType.ToString();
+                    batonSlot.SlotTypeId = (int)slot.SlotType;
+                    batonSlot.SlotTypes = SelectionItem.ConvertEnumToSelectionItem<Slot.enumSlotType>(slot.SlotType);
+                    batonSlot.SlotFillerId = slot.SlotFillerId;
                     batonSlot.SlotFillers = new List<SelectionItem>();
-                    batonSlot.SlotFillers.Add(new SelectionItem("Empty", "0", false, (slot.SlotFillerId == 0)));
                     batonSlot.IsDisabled = false;
+                    if (slot.Id > 0) {
+                        batonSlot.IsSlotTypeDisabled = true;
+                    }
+                    batonSlot.SlotFillers.Add(new SelectionItem("Empty", "0", false, (slot.SlotFillerId == 0)));
                     foreach (KeyValuePair<int, string> slotFiller in _slotFiller.SlotFillersForType(slot.SlotType)) {
                         batonSlot.SlotFillers.Add(new SelectionItem(slotFiller.Value, slotFiller.Key.ToString(), false, (slot.SlotFillerId == slotFiller.Key)));
                     }
@@ -76,6 +83,7 @@ namespace MScheduler_BusTier.Concrete {
                         slot.Description = batonSlot.Description;
                         slot.Title = batonSlot.Title;
                         slot.SortNumber = batonSlot.SortNumber;
+                        slot.SlotType = (Slot.enumSlotType)batonSlot.SlotTypeId;
                         slot.FillSlot(batonSlot.SlotFillerId);
                     }
                 }
@@ -117,8 +125,22 @@ namespace MScheduler_BusTier.Concrete {
             }
         }
 
+        public void CreateSlot() {
+            ISlot slot = _factory.CreateSlot();
+            _data.Slots.Add(slot);            
+        }
+
         public void LoadFromSource() {
 
+        }
+
+        public void Save() {
+            IMeeting meeting = _factory.CreateMeeting();
+            meeting.Data = _data;
+            int meetingId = meeting.SaveToSource();
+            meeting.LoadFromSource(meetingId);
+            _data = meeting.Data;
+            _hasChanged = false;
         }
 
         public EditMeetingView(IFactory factory, ISlotFiller slotFiller) {
@@ -148,9 +170,22 @@ namespace MScheduler_BusTier.Concrete {
             public string Description { get; set; }
             public int SlotFillerId { get; set; }
             public int SortNumber { get; set; }
-            public string SlotType { get; set; }
+            public int SlotTypeId { get; set; }
             public bool IsDisabled { get; set; }
             public List<SelectionItem> SlotFillers { get; set; }
+            public List<SelectionItem> SlotTypes { get; set; }
+
+            private bool _isSlotTypeDisabled;
+            public bool IsSlotTypeDisabled {
+                get {
+                    if (this.IsDisabled) {
+                        return true;
+                    } else {
+                        return _isSlotTypeDisabled;
+                    }
+                }
+                set { _isSlotTypeDisabled = value; }
+            }
         }
     }
 
@@ -193,6 +228,14 @@ namespace MScheduler_BusTier.Concrete {
 
         public virtual void LoadFromSource() {
             _meeting.LoadFromSource();
+        }
+
+        public virtual void Save() {
+            _meeting.Save();
+        }
+
+        public virtual void CreateSlot() {
+            _meeting.CreateSlot();
         }
 
         public EditMeetingViewDecorator(IEditMeetingView meeting) {

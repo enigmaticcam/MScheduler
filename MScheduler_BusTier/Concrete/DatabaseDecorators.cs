@@ -886,7 +886,11 @@ namespace MScheduler_BusTier.Abstract {
             if (_fillers.GetFillers(slotType) == null) {
                 LoadFillers(slotType);                
             }
-            return _fillers.GetFillers(slotType);
+            if (_fillers.GetFillers(slotType) == null) {
+                return new Dictionary<int, string>();
+            } else {
+                return _fillers.GetFillers(slotType);
+            }
         }        
 
         private void LoadFillers(Slot.enumSlotType slotType) {
@@ -926,8 +930,10 @@ namespace MScheduler_BusTier.Abstract {
 
             public void PerformAction() {
                 BuildFilter();
-                ExecuteSql();
-                PopulateFillers();
+                if (_sql.Length > 0) {
+                    ExecuteSql();
+                    PopulateFillers();
+                }                
             }
 
             private void BuildFilter() {
