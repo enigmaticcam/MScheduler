@@ -1,0 +1,25 @@
+﻿@using MScheduler_Web.Models
+@model BatonCreateMeetingSlot
+
+@using (Html.BeginForm("CreateSlot", "EditMeeting")) {
+    @Html.HiddenFor(m => m.MeetingId)
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-1">
+                <label>Slot Type</label>
+            </div>
+            <div class="col-sm-11">
+                @Html.DropDownListFor(m => m.SlotTypeId, Model.SlotTypes, new { @class = "form-control" })
+            </div>            
+        </div>
+        <div class="row">
+            <div class="col-sm-1">
+                <label>Sort Number</label>
+            </div>
+            <div class="col-sm-11">
+                @Html.TextBoxFor(m => m.SortNumber, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+    <input type="submit" class="btn btn-primary" value="Create Slot" />
+}

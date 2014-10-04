@@ -33,10 +33,10 @@ namespace MScheduler_Web.Controllers {
             return RedirectToAction("Meeting", new { id = id });
         }
 
-        public ActionResult CreateSlot(int id) {
+        public ActionResult CreateSlot(BatonCreateMeetingSlot baton) {
             ViewState viewState = GetViewState();
-            viewState.CurrentEditMeetingView.CreateSlot();
-            return RedirectToAction("Meeting", new { id = id });
+            viewState.CurrentEditMeetingView.BatonCreateSlot = baton.Export();
+            return RedirectToAction("Meeting", new { id = baton.MeetingId });
         }
 
         public ActionResult RefreshWithId(int id) {

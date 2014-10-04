@@ -126,37 +126,26 @@ namespace MScheduler_Web.Models {
         public string Title { get; set; }
         public string Description { get; set; }
         public int SlotFillerId { get; set; }
+        public string SlotType { get; set; }
         public int SortNumber { get; set; }
-        public int SlotTypeId { get; set; }        
         public bool IsDisabled { get; set; }
-        public bool IsSlotTypeDisabled { get; set; }
         public List<SelectListItem> SlotFillers { get; set; }
-        public List<SelectListItem> SlotTypes { get; set; }
 
         public void Import(EditMeetingView.BatonSlot batonSlot) {
             this.SlotId = batonSlot.SlotId;
             this.Title = batonSlot.Title;
             this.Description = batonSlot.Description;
             this.SortNumber = batonSlot.SortNumber;
-            this.SlotTypeId = batonSlot.SlotTypeId;            
             this.IsDisabled = batonSlot.IsDisabled;
-            this.IsSlotTypeDisabled = batonSlot.IsSlotTypeDisabled;
+            this.SlotType = batonSlot.SlotType;
             this.SlotFillerId = batonSlot.SlotFillerId;
             this.SlotFillers = new List<SelectListItem>();
-            this.SlotTypes = new List<SelectListItem>();
             foreach (SelectionItem item in batonSlot.SlotFillers) {
                 SelectListItem selectItem = new SelectListItem();
                 selectItem.Text = item.Text;
                 selectItem.Value = item.Value;
                 selectItem.Selected = item.IsSelected;
                 this.SlotFillers.Add(selectItem);
-            }
-            foreach (SelectionItem item in batonSlot.SlotTypes) {
-                SelectListItem selectItem = new SelectListItem();
-                selectItem.Text = item.Text;
-                selectItem.Value = item.Value;
-                selectItem.Selected = item.IsSelected;
-                this.SlotTypes.Add(selectItem);
             }
         }
 
@@ -166,9 +155,7 @@ namespace MScheduler_Web.Models {
             batonSlot.Title = this.Title;
             batonSlot.Description = this.Description;
             batonSlot.SortNumber = this.SortNumber;
-            batonSlot.SlotTypeId = this.SlotTypeId;
             batonSlot.IsDisabled = this.IsDisabled;
-            batonSlot.IsSlotTypeDisabled = this.IsSlotTypeDisabled;
             batonSlot.SlotFillerId = this.SlotFillerId;
             return batonSlot;
         }
@@ -197,6 +184,35 @@ namespace MScheduler_Web.Models {
                 }
                 this.Templates.Add(selectItem);
             }
+        }
+    }
+
+    public class BatonCreateMeetingSlot {
+        public int MeetingId { get; set; }
+        public int SlotTypeId { get; set; }
+        public int SortNumber { get; set; }
+        public List<SelectListItem> SlotTypes { get; set; }
+
+        public void Import(EditMeetingView.CreateSlot baton) {
+            this.MeetingId = baton.MeetingId;
+            this.SlotTypeId = baton.SlotTypeId;
+            this.SortNumber = baton.SortNumber;
+            this.SlotTypes = new List<SelectListItem>();            
+            foreach (SelectionItem item in baton.SlotTypes) {
+                SelectListItem select = new SelectListItem();
+                select.Text = item.Text;
+                select.Value = item.Value;
+                select.Selected = item.IsSelected;
+                this.SlotTypes.Add(select);
+            }
+        }
+
+        public EditMeetingView.CreateSlot Export() {
+            EditMeetingView.CreateSlot baton = new EditMeetingView.CreateSlot();
+            baton.MeetingId = this.MeetingId;
+            baton.SlotTypeId = this.SlotTypeId;
+            baton.SortNumber = this.SortNumber;
+            return baton;
         }
     }
 

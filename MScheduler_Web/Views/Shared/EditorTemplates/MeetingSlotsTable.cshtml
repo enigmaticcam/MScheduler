@@ -24,16 +24,10 @@
         @Html.HiddenFor(m => m[i].SlotId)
         <div class="row">
             <div class="col-sm-2">
-                @if (Model[i].IsSlotTypeDisabled) {
-                    @Html.DropDownListFor(m => m[i].SlotTypeId, Model[i].SlotTypes, new { @class = "form-control", @disabled = "disabled" })                   
-                } else {
-                    @Html.DropDownListFor(m => m[i].SlotTypeId, Model[i].SlotTypes, new { @class = "form-control" })
-                }
+                @Html.DisplayTextFor(m => m[i].SlotType)
             </div>
             <div class="col-sm-3">
-                <div id="SlotFiller@(Model[i].SlotFillerId.ToString())">
-                    @Html.DropDownListFor(m => m[i].SlotFillerId, Model[i].SlotFillers, new { @class = "form-control" })
-                </div>
+                @Html.DropDownListFor(m => m[i].SlotFillerId, Model[i].SlotFillers, new { @class = "form-control" })
             </div>
             <div class="col-sm-3">
                 @Html.TextBoxFor(m => m[i].Title, new { @class = "form-control" })
