@@ -82,4 +82,38 @@ namespace MScheduler_BusTier.Abstract {
             _idPropertyName = idPropertyName;
         }
     }
+
+    public class AutoOrdererChangeCache<T> {
+        private List<SortChange> _changes = new List<SortChange>();
+        private string _idPropertyName;
+
+        public void AddSlotChange(int itemIndex, int oldSort, int newSort) {
+            SortChange change = new SortChange();
+            change.ItemIndex = itemIndex;
+            change.OldSort = oldSort;
+            change.NewSort = newSort;
+            _changes.Add(change);
+        }
+
+        public void PerformAutoSort(List<T> items) {
+            foreach (SortChange change in _changes) {
+                AutoOrderer<T> orderer = new AutoOrderer<T>(items, _idPropertyName);
+                orderer.ChangeIdAndReorder(change.ItemIndex, change.NewSort);
+            }
+        }
+
+        private int GetIdForItem(T item) {
+            return Convert.ToInt32(item.GetType().GetProperty(_idPropertyName).GetValue(item, null));
+        }
+
+        public AutoOrdererChangeCache(string idPropertyName) {
+            _idPropertyName = idPropertyName;
+        }
+
+        private class SortChange {
+            public int ItemIndex { get; set; }
+            public int OldSort { get; set; }
+            public int NewSort { get; set; }
+        }
+    }
 }

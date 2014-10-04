@@ -71,21 +71,22 @@ namespace MScheduler_BusTier.Concrete {
                 return baton;
             }
             set {
-                AutoSortSlots autoSort = new AutoSortSlots();
+                AutoOrdererChangeCache<ISlot> autoOrderer = new AutoOrdererChangeCache<ISlot>("SortNumber");
                 _data.Description = value.Description;
                 _data.IsDeleted = value.IsDeleted;
                 foreach (EditMeetingView.BatonSlot batonSlot in value.BatonSlots) {
                     if (!batonSlot.IsDisabled) {
-                        ISlot slot = _data.Slots.Where(s => s.Id == batonSlot.SlotId).First();
+                        int slotIndex = _data.Slots.FindIndex(s => s.Id == batonSlot.SlotId);
+                        ISlot slot = _data.Slots.ElementAt(slotIndex);
                         slot.Description = batonSlot.Description;
                         slot.Title = batonSlot.Title;
                         if (slot.SortNumber != batonSlot.SortNumber) {
-                            autoSort.AddSlotChange(slot.Id, slot.SortNumber, batonSlot.SortNumber);
+                            autoOrderer.AddSlotChange(slotIndex, slot.SortNumber, batonSlot.SortNumber);                            
                         }
                         slot.FillSlot(batonSlot.SlotFillerId);
                     }
                 }
-                autoSort.PerformAutoSort(_data.Slots);
+                autoOrderer.PerformAutoSort(_data.Slots);
                 _hasChanged = true;
             }
         }
@@ -197,31 +198,6 @@ namespace MScheduler_BusTier.Concrete {
             public string Title { get; set; }
             public string Description { get; set; }
             public List<SelectionItem> SlotTypes { get; set; }
-        }
-
-        private class AutoSortSlots {
-            private List<SortChange> _changes = new List<SortChange>();
-
-            public void AddSlotChange(int sortId, int oldSort, int newSort) {
-                SortChange change = new SortChange();
-                change.SlotId = sortId;
-                change.OldSort = oldSort;
-                change.NewSort = newSort;
-                _changes.Add(change);
-            }
-
-            public void PerformAutoSort(List<ISlot> slots) {
-                foreach (SortChange change in _changes) {
-                    AutoOrderer<ISlot> orderer = new AutoOrderer<ISlot>(slots, "SortNumber");
-                    orderer.ChangeIdAndReorder(slots.FindIndex(f => f.Id == change.SlotId), change.NewSort);
-                }
-            }
-
-            private class SortChange {
-                public int SlotId { get; set; }
-                public int OldSort { get; set; }
-                public int NewSort { get; set; }
-            }
         }
     }
 

@@ -56,8 +56,16 @@ namespace MScheduler_BusTier.Concrete {
             get {
                 return _data.TemplateSlots.OrderBy(s => s.SortNumber).ToList(); 
             }
-            set { 
+            set {
+                AutoOrdererChangeCache<TemplateSlot> autoOrder = new AutoOrdererChangeCache<TemplateSlot>("SortNumber");
+                foreach (TemplateSlot slot in value) {
+                    int slotIndex = _data.TemplateSlots.FindIndex(s => s.Id == slot.Id);
+                    if (_data.TemplateSlots[slotIndex].SortNumber != slot.SortNumber) {
+                        autoOrder.AddSlotChange(slotIndex, _data.TemplateSlots[slotIndex].SortNumber, slot.SortNumber);
+                    }
+                }
                 _data.TemplateSlots = value;
+                autoOrder.PerformAutoSort(_data.TemplateSlots);
                 _hasChanged = true;
             }
         }
@@ -145,6 +153,8 @@ namespace MScheduler_BusTier.Concrete {
                 }
                 TemplateSlot slot = new TemplateSlot();
                 slot.TemplateId = _data.Id;
+                AutoOrderer<TemplateSlot> autoOrder = new AutoOrderer<TemplateSlot>(_data.TemplateSlots, "SortNumber");
+                slot.SortNumber = autoOrder.NextHighestId();
                 _data.TemplateSlots.Add(slot);
                 _hasChanged = true;
             }
