@@ -71,6 +71,7 @@ namespace MScheduler_BusTier.Concrete {
                 return baton;
             }
             set {
+                AutoSortSlots autoSort = new AutoSortSlots();
                 _data.Description = value.Description;
                 _data.IsDeleted = value.IsDeleted;
                 foreach (EditMeetingView.BatonSlot batonSlot in value.BatonSlots) {
@@ -78,10 +79,13 @@ namespace MScheduler_BusTier.Concrete {
                         ISlot slot = _data.Slots.Where(s => s.Id == batonSlot.SlotId).First();
                         slot.Description = batonSlot.Description;
                         slot.Title = batonSlot.Title;
-                        slot.SortNumber = batonSlot.SortNumber;
+                        if (slot.SortNumber != batonSlot.SortNumber) {
+                            autoSort.AddSlotChange(slot.Id, slot.SortNumber, batonSlot.SortNumber);
+                        }
                         slot.FillSlot(batonSlot.SlotFillerId);
                     }
                 }
+                autoSort.PerformAutoSort(_data.Slots);
                 _hasChanged = true;
             }
         }
@@ -110,13 +114,19 @@ namespace MScheduler_BusTier.Concrete {
                 CreateSlot baton = new CreateSlot();
                 baton.MeetingId = _data.Id;
                 baton.SlotTypes = SelectionItem.ConvertEnumToSelectionItem<Slot.enumSlotType>(Slot.enumSlotType.None);
+                AutoOrderer<ISlot> autoOrder = new AutoOrderer<ISlot>(_data.Slots, "SortNumber");
+                baton.SortNumber = autoOrder.NextHighestId();
                 return baton;
             }
             set {
                 ISlot slot = _factory.CreateSlot();
                 slot.SlotType = (Slot.enumSlotType)value.SlotTypeId;
-                slot.SortNumber = value.SortNumber;
+                slot.Title = value.Title;
+                slot.Description = value.Description;
                 _data.Slots.Add(slot);
+
+                AutoOrderer<ISlot> autoOrder = new AutoOrderer<ISlot>(_data.Slots, "SortNumber");
+                autoOrder.ChangeIdAndReorder(_data.Slots.Count - 1, value.SortNumber);
             }
         }
 
@@ -184,7 +194,34 @@ namespace MScheduler_BusTier.Concrete {
             public int MeetingId { get; set; }
             public int SortNumber { get; set; }
             public int SlotTypeId { get; set; }
+            public string Title { get; set; }
+            public string Description { get; set; }
             public List<SelectionItem> SlotTypes { get; set; }
+        }
+
+        private class AutoSortSlots {
+            private List<SortChange> _changes = new List<SortChange>();
+
+            public void AddSlotChange(int sortId, int oldSort, int newSort) {
+                SortChange change = new SortChange();
+                change.SlotId = sortId;
+                change.OldSort = oldSort;
+                change.NewSort = newSort;
+                _changes.Add(change);
+            }
+
+            public void PerformAutoSort(List<ISlot> slots) {
+                foreach (SortChange change in _changes) {
+                    AutoOrderer<ISlot> orderer = new AutoOrderer<ISlot>(slots, "SortNumber");
+                    orderer.ChangeIdAndReorder(slots.FindIndex(f => f.Id == change.SlotId), change.NewSort);
+                }
+            }
+
+            private class SortChange {
+                public int SlotId { get; set; }
+                public int OldSort { get; set; }
+                public int NewSort { get; set; }
+            }
         }
     }
 

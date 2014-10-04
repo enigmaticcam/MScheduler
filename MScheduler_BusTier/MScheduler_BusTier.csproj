@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstract\AutoOrderer.cs" />
     <Compile Include="Abstract\ConnectionControl.cs" />
     <Compile Include="Abstract\DAC.cs" />
     <Compile Include="Concrete\DatabaseDecorators.cs" />

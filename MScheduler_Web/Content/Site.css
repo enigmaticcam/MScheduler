@@ -46,3 +46,7 @@ table.Cal td  {
 .CalPlusButton {
     float: right;    
 }
+
+.panel-wrapper {
+    margin: 10px;
+}
