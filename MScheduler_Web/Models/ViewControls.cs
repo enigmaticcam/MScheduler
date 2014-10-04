@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
 using MScheduler_BusTier.Abstract;
@@ -43,16 +44,16 @@ namespace MScheduler_Web.Models {
         public List<TemplateSlot> Export() {
             return
                 (from n in this.TemplateSlots
-                 select n.Export()).ToList();
+                 select (TemplateSlot)n.Export()).ToList();
         }
     }
 
-    public class BatonTemplateSlot {
-        public int Id { get; set; }
-        public int TemplateId { get; set; }
-        public int SlotTypeId { get; set; }
-        public string Title { get; set; }
-        public int SortNumber { get; set; }
+    public class BatonTemplateSlot : TemplateSlot {
+        public int SlotTypeId {
+            get { return (int)this.SlotType; }
+            set { this.SlotType = (Slot.enumSlotType)value; }
+        }
+
         public IEnumerable<SelectListItem> SlotTypes {
             get {
                 foreach (Slot.enumSlotType slotType in Enum.GetValues(typeof(Slot.enumSlotType))) {
@@ -64,100 +65,92 @@ namespace MScheduler_Web.Models {
                             item.Selected = true;
                         }
                         yield return item;
-                    }                    
+                    }
                 }
             }
         }
 
-        public void Import(TemplateSlot templateSlot) {
-            this.Id = templateSlot.Id;
-            this.TemplateId = templateSlot.TemplateId;
-            this.SlotTypeId = (int)templateSlot.SlotType;
-            this.Title = templateSlot.Title;
-            this.SortNumber = templateSlot.SortNumber;            
+        public void Import(TemplateSlot slot) {
+            PopulateBasicProperties(slot);
         }
 
-        public TemplateSlot Export() {
-            TemplateSlot slot = new TemplateSlot();
-            slot.Id = this.Id;
-            slot.SlotType = (Slot.enumSlotType)this.SlotTypeId;
-            slot.Title = this.Title;
-            slot.SortNumber = this.SortNumber;
-            slot.TemplateId = this.TemplateId;
-            return slot;
+        public BatonTemplateSlot Export() {
+            return this;
+        }
+
+        private void PopulateBasicProperties(TemplateSlot slot) {
+            BatonPopulator populator = new BatonPopulator();
+            populator.Populate(slot, this);
         }
     }
 
-    public class BatonMeeting {
-        public int MeetingId { get; set; }
-        public string Description { get; set; }
-        public DateTime Date { get; set; }
-        public bool IsDeleted { get; set; }
-        public List<BatonSlot> BatonSlots { get; set; }
+    public class BatonMeeting : EditMeetingView.Baton {
+        public List<BatonSlot> BatonSlotsList { get; set; }
 
         public void Import(EditMeetingView.Baton baton) {
-            this.MeetingId = baton.Id;
-            this.Description = baton.Description;
-            this.Date = baton.Date;
-            this.IsDeleted = baton.IsDeleted;
-            this.BatonSlots = new List<BatonSlot>();
+            PopulateBasicProperties(baton);
+            PopulateBatonSlots(baton);
+        }
+
+        public BatonMeeting Export() {
+            ExportBatonSlots();
+            return this;
+        }
+
+        private void PopulateBasicProperties(EditMeetingView.Baton baton) {
+            BatonPopulator populator = new BatonPopulator();
+            populator.Populate(baton, this);
+        }
+
+        private void PopulateBatonSlots(EditMeetingView.Baton baton) {
+            this.BatonSlotsList = new List<BatonSlot>();
             foreach (EditMeetingView.BatonSlot batonSlot in baton.BatonSlots) {
                 BatonSlot newSlot = new BatonSlot();
                 newSlot.Import(batonSlot);
-                this.BatonSlots.Add(newSlot);
+                this.BatonSlotsList.Add(newSlot);
             }
         }
 
-        public EditMeetingView.Baton Export() {
-            EditMeetingView.Baton baton = new EditMeetingView.Baton();
-            baton.Id = this.MeetingId;
-            baton.Description = this.Description;
-            baton.Date = this.Date;
-            baton.IsDeleted = this.IsDeleted;
-            baton.BatonSlots =
-                (from n in this.BatonSlots
-                 select n.Export()).ToList();
-            return baton;
+        private void ExportBatonSlots() {
+            this.BatonSlots = new List<EditMeetingView.BatonSlot>();
+            foreach (BatonSlot slot in this.BatonSlotsList) {
+                this.BatonSlots.Add((EditMeetingView.BatonSlot)slot);
+            }
         }
     }
 
-    public class BatonSlot {
-        public int SlotId { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public int SlotFillerId { get; set; }
-        public string SlotType { get; set; }
-        public int SortNumber { get; set; }
-        public bool IsDisabled { get; set; }
-        public List<SelectListItem> SlotFillers { get; set; }
+    public class BatonSlot : EditMeetingView.BatonSlot {
+        public List<SelectListItem> SlotFillersList { get; set; }
 
-        public void Import(EditMeetingView.BatonSlot batonSlot) {
-            this.SlotId = batonSlot.SlotId;
-            this.Title = batonSlot.Title;
-            this.Description = batonSlot.Description;
-            this.SortNumber = batonSlot.SortNumber;
-            this.IsDisabled = batonSlot.IsDisabled;
-            this.SlotType = batonSlot.SlotType;
-            this.SlotFillerId = batonSlot.SlotFillerId;
-            this.SlotFillers = new List<SelectListItem>();
-            foreach (SelectionItem item in batonSlot.SlotFillers) {
+        public void Import(EditMeetingView.BatonSlot baton) {
+            PopulateBasicProperties(baton);
+            PopulateSlotFillers(baton);
+        }
+
+        private void PopulateBasicProperties(EditMeetingView.BatonSlot baton) {
+            BatonPopulator populator = new BatonPopulator();
+            populator.Populate(baton, this);
+        }
+
+        private void PopulateSlotFillers(EditMeetingView.BatonSlot baton) {
+            this.SlotFillersList = new List<SelectListItem>();
+            foreach (SelectionItem item in baton.SlotFillers) {
                 SelectListItem selectItem = new SelectListItem();
                 selectItem.Text = item.Text;
                 selectItem.Value = item.Value;
                 selectItem.Selected = item.IsSelected;
-                this.SlotFillers.Add(selectItem);
+                this.SlotFillersList.Add(selectItem);
             }
         }
+    }
 
-        public EditMeetingView.BatonSlot Export() {
-            EditMeetingView.BatonSlot batonSlot = new EditMeetingView.BatonSlot();
-            batonSlot.SlotId = this.SlotId;
-            batonSlot.Title = this.Title;
-            batonSlot.Description = this.Description;
-            batonSlot.SortNumber = this.SortNumber;
-            batonSlot.IsDisabled = this.IsDisabled;
-            batonSlot.SlotFillerId = this.SlotFillerId;
-            return batonSlot;
+    public class BatonPopulator {
+        public void Populate(object source, object target) {
+            foreach (PropertyInfo property in source.GetType().GetProperties()) {
+                if (property.CanWrite) {
+                    target.GetType().GetProperty(property.Name).SetValue(target, property.GetValue(source));
+                }
+            }
         }
     }
 
