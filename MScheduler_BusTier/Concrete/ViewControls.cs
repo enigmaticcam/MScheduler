@@ -47,4 +47,26 @@ namespace MScheduler_BusTier.Concrete {
             return items;
         }
     }
+
+    public class MessageCenter {
+        private Dictionary<string, string> _messages = new Dictionary<string, string>();
+        public string Message {
+            get {
+                StringBuilder message = new StringBuilder();
+                foreach (string key in _messages.Keys.ToList()) {
+                    message.AppendLine(_messages[key]);
+                }
+                _messages = new Dictionary<string, string>();
+                return message.ToString();
+            }
+        }
+
+        public void AddMessage(string messageId, string message) {
+            if (_messages.ContainsKey(messageId)) {
+                _messages[messageId] = message;
+            } else {
+                _messages.Add(messageId, message);
+            }
+        }
+    }
 }

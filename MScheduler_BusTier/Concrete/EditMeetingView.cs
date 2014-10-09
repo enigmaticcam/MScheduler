@@ -12,6 +12,7 @@ namespace MScheduler_BusTier.Concrete {
         string Description { get; }
         DateTime Date { get; }
         bool HasChanged { get; }
+        string Message { get; }
         EditMeetingView.Baton BatonMeeting { get; set; }
         EditMeetingView.CreateMeeting BatonCreateMeeting { set; }
         EditMeetingView.CreateSlot BatonCreateSlot { get; set; }
@@ -19,6 +20,8 @@ namespace MScheduler_BusTier.Concrete {
         void SetMeeting(int id);
         void LoadFromSource();
         void Save();
+        void AddMessage(string messageId, string message);
+        void PerformValidations();
     }
     
     public class EditMeetingView : IEditMeetingView {
@@ -36,6 +39,11 @@ namespace MScheduler_BusTier.Concrete {
 
         public DateTime Date {
             get { return _data.Date; }
+        }
+
+        private MessageCenter _messageCenter = new MessageCenter();
+        public string Message {
+            get { return _messageCenter.Message; }
         }
 
         private bool _hasChanged;
@@ -161,6 +169,35 @@ namespace MScheduler_BusTier.Concrete {
             _hasChanged = false;
         }
 
+        public void AddMessage(string messageId, string message) {
+            _messageCenter.AddMessage(messageId, message);
+        }
+
+        public void PerformValidations() {
+            DoAnyUsersOccupyMoreThanOneSlot();
+        }
+
+        private void DoAnyUsersOccupyMoreThanOneSlot() {
+            StringBuilder message = new StringBuilder();
+            HashSet<int> users = new HashSet<int>();
+            bool firstTime = true;
+            foreach (ISlot slot in _data.Slots) {
+                if (slot.SlotFillerId != 0 && users.Contains(slot.SlotFillerId)) {
+                    if (firstTime) {
+                        firstTime = false;
+                    } else {
+                        message.AppendLine("");
+                    }
+                    message.Append(_slotFiller.SlotFillersForType(slot.SlotType)[slot.SlotFillerId] + " is double-booked");
+                } else {
+                    users.Add(slot.SlotFillerId);
+                }
+            }
+            if (message.Length > 0) {
+                this.AddMessage("DoAnyUsersOccupyMoreThanOneSlot", message.ToString());
+            }
+        }
+
         public EditMeetingView(IFactory factory, ISlotFiller slotFiller) {
             _factory = factory;
             _slotFiller = slotFiller;
@@ -223,6 +260,10 @@ namespace MScheduler_BusTier.Concrete {
             get { return _meeting.HasChanged; }
         }
 
+        public virtual string Message {
+            get { return _meeting.Message; }
+        }
+
         public virtual Dictionary<int, string> Meetings {
             get { return _meeting.Meetings; }
             set { _meeting.Meetings = value; }
@@ -252,6 +293,14 @@ namespace MScheduler_BusTier.Concrete {
 
         public virtual void Save() {
             _meeting.Save();
+        }
+
+        public virtual void AddMessage(string messageId, string message) {
+            _meeting.AddMessage(messageId, message);
+        }
+
+        public virtual void PerformValidations() {
+            _meeting.PerformValidations();
         }
 
         public EditMeetingViewDecorator(IEditMeetingView meeting) {

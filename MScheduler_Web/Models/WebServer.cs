@@ -25,7 +25,7 @@ namespace MScheduler_Web.Models {
 
         public MvcHtmlString GetStatusMessage(TempDataDictionary tempData) {
             if (tempData.ContainsKey(enumTempData.StatusMessage.ToString())) {
-                return new MvcHtmlString(tempData[enumTempData.StatusMessage.ToString()].ToString());
+                return new MvcHtmlString(tempData[enumTempData.StatusMessage.ToString()].ToString().Replace("\n", "<br />"));
             } else {
                 return new MvcHtmlString("");
             }

@@ -1,6 +1,10 @@
 ﻿@using MScheduler_Web.Models
 @model ViewState
 
+@section StatusMessage {
+    <div class="statusMessage">@Model.StatusMessage()</div>
+}
+
 <div class="panel panel-default panel-wrapper">
     <div class="panel-heading">Meeting Editor</div>
     <div class="panel-body">

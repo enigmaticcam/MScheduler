@@ -12,6 +12,11 @@ namespace MScheduler_Web.Controllers {
         public ActionResult Meeting(int id) {
             ViewState viewState = GetViewState();
             viewState.CurrentEditMeetingView.SetMeeting(id);
+            viewState.CurrentEditMeetingView.PerformValidations();
+            string message = viewState.CurrentEditMeetingView.Message;
+            if (message.Length > 0) {
+                this.DefaultServer.AddStatusMessage(TempData, message);
+            }
             return View(viewState);
         }
 
