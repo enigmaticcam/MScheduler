@@ -4,7 +4,10 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-2">
+        <div class="col-sm-1">
+            <label>Actions</label>
+        </div>
+        <div class="col-sm-1">
             <label>Slot Type</label>
         </div>
         <div class="col-sm-3">
@@ -24,9 +27,11 @@
         @Html.HiddenFor(m => m[i].IsDisabled)
         @Html.HiddenFor(m => m[i].SlotId)
         <div class="row">
-            <div class="col-sm-2">
+            <div class="col-sm-1">
+                @Html.CheckBoxFor(m => m[i].IsDeleted)
+            </div>
+            <div class="col-sm-1">
                 @Html.DisplayTextFor(m => m[i].SlotType)
-                
             </div>
             <div class="col-sm-3">
                 @Html.DropDownListFor(m => m[i].SlotFillerId, Model[i].SlotFillersList, new { @class = "form-control" })

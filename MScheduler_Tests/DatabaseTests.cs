@@ -88,10 +88,14 @@ namespace MScheduler_Tests {
 
             Mock<ISlot> slot1 = new Mock<ISlot>();
             Mock<ISlot> slot2 = new Mock<ISlot>();
+            Mock<ISlot> slot3 = new Mock<ISlot>();
             slot1.Setup(s => s.Id).Returns(1);
             slot1.Setup(s => s.SortNumber).Returns(2);
             slot2.Setup(s => s.Id).Returns(2);
             slot2.Setup(s => s.SortNumber).Returns(1);
+            slot3.Setup(s => s.Id).Returns(3);
+            slot3.Setup(s => s.SortNumber).Returns(3);
+            slot3.Setup(s => s.IsDeleted).Returns(true);
             List<ISlot> slots = new List<ISlot> { slot1.Object, slot2.Object };
 
             Mock<IFactory> factory = new Mock<IFactory>();
@@ -151,7 +155,7 @@ namespace MScheduler_Tests {
             Slot.SlotData data = new Slot.SlotData();
             data.Description = "Description";
             data.SlotFillerId = 15;
-            data.IsDeleted = false;
+            data.IsDeleted = true;
             data.MeetingId = 5;
             data.SortNumber = 10;
             data.Title = "Title";
@@ -181,6 +185,7 @@ namespace MScheduler_Tests {
             Assert.AreEqual(slotOld.Object.SortNumber, slotNew.Object.SortNumber);
             Assert.AreEqual(slotOld.Object.Title, slotNew.Object.Title);
             Assert.AreEqual(slotOld.Object.SlotType, slotNew.Object.SlotType);
+            Assert.AreEqual(slotOld.Object.IsDeleted, slotNew.Object.IsDeleted);
         }
 
         [TestMethod]
@@ -201,6 +206,12 @@ namespace MScheduler_Tests {
             slot2.SortNumber = 1;
             slot2.TemplateId = 1;
             slot2.Title = "Title2";
+            TemplateSlot slot3 = new TemplateSlot();
+            slot3.SlotType = Slot.enumSlotType.None;
+            slot3.SortNumber = 5;
+            slot3.TemplateId = 1;
+            slot3.Title = "Title3";
+            slot3.IsDeleted = true;
             List<TemplateSlot> slots = new List<TemplateSlot>();
             slots.Add(slot1);
             slots.Add(slot2);

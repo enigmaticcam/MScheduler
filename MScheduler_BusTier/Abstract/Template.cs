@@ -147,6 +147,7 @@ namespace MScheduler_BusTier.Abstract {
         public Slot.enumSlotType SlotType { get; set; }
         public string Title { get; set; }
         public int SortNumber { get; set; }
+        public bool IsDeleted { get; set; }
     }
 
     public class TemplateDecorator : ITemplate {

@@ -56,6 +56,7 @@ namespace MScheduler_BusTier.Abstract {
                 _sql.AppendLine("");
                 _sql.AppendLine("select * from " + _connection.DatabaseName + ".dbo.Slot");
                 _sql.AppendLine("where MeetingId = " + _meetingId);
+                _sql.AppendLine("and IsDeleted = 0");
             }
 
             private void GetDataSetFromDatabase() {
@@ -260,7 +261,7 @@ namespace MScheduler_BusTier.Abstract {
 
             private void PopulateDataFromDataSet() {
                 _data.Id = _slotId;
-                _data.IsDeleted = false;
+                _data.IsDeleted = (bool)GetValueFromDataSet("IsDeleted");
                 _data.MeetingId = (int)GetValueFromDataSet("MeetingId");
                 _data.SortNumber = (int)GetValueFromDataSet("SortNumber");
                 _data.Title = GetValueFromDataSet("Title").ToString();
@@ -333,13 +334,14 @@ namespace MScheduler_BusTier.Abstract {
             }
 
             private void GenerateTableSqlNew() {
-                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.Slot(MeetingId, SlotFillerId, Title, Description, SortNumber, SlotTypeId)");
+                _sql.AppendLine("insert into " + _connection.DatabaseName + ".dbo.Slot(MeetingId, SlotFillerId, Title, Description, SortNumber, SlotTypeId, IsDeleted)");
                 _sql.Append("values(" + _slot.MeetingId);
                 _sql.Append("," + _slot.SlotFillerId);
                 _sql.Append(",'" + _connection.SqlSafe(_slot.Title) + "'");
                 _sql.Append(",'" + _connection.SqlSafe(_slot.Description) + "'");
                 _sql.Append("," + _slot.SortNumber);
                 _sql.Append("," + (int)_slot.SlotType);
+                _sql.Append("," + (_slot.IsDeleted ? "1" : "0"));
                 _sql.AppendLine(")");
                 _sql.AppendLine("");
                 _sql.AppendLine("select @SlotId = max(SlotId) from " + _connection.DatabaseName + ".dbo.Slot");
@@ -353,6 +355,7 @@ namespace MScheduler_BusTier.Abstract {
                 _sql.AppendLine(", Description = '" + _connection.SqlSafe(_slot.Description) + "'");
                 _sql.AppendLine(", SortNumber = " + _slot.SortNumber);
                 _sql.AppendLine(", SlotTypeId = " + (int)_slot.SlotType);
+                _sql.AppendLine(", IsDeleted = " + (_slot.IsDeleted ? "1" : "0"));
                 _sql.AppendLine("where SlotId = " + _slot.Id);
                 _sql.AppendLine("");
                 _sql.AppendLine("set @SlotId = " + _slot.Id);
@@ -563,12 +566,14 @@ namespace MScheduler_BusTier.Abstract {
             private void GenerateTemplateSlotSqlInidividuals() {
                 _sql.AppendLine("");
                 foreach (TemplateSlot slot in _template.TemplateSlots) {
-                    _sql.AppendLine("insert into TemplateSlot(TemplateId, SlotTypeId, Title, SortNumber)");
-                    _sql.Append("values(" + slot.TemplateId);
-                    _sql.Append("," + (int)slot.SlotType);
-                    _sql.Append(",'" + _connection.SqlSafe(slot.Title) + "'");
-                    _sql.Append("," + slot.SortNumber);
-                    _sql.AppendLine(")");
+                    if (!slot.IsDeleted) {
+                        _sql.AppendLine("insert into TemplateSlot(TemplateId, SlotTypeId, Title, SortNumber)");
+                        _sql.Append("values(" + slot.TemplateId);
+                        _sql.Append("," + (int)slot.SlotType);
+                        _sql.Append(",'" + _connection.SqlSafe(slot.Title) + "'");
+                        _sql.Append("," + slot.SortNumber);
+                        _sql.AppendLine(")");
+                    }
                 }
             }
 
