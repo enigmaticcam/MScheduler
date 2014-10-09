@@ -42,6 +42,7 @@
     <Compile Include="Abstract\AutoOrderer.cs" />
     <Compile Include="Abstract\ConnectionControl.cs" />
     <Compile Include="Abstract\DAC.cs" />
+    <Compile Include="Abstract\Group.cs" />
     <Compile Include="Concrete\DatabaseDecorators.cs" />
     <Compile Include="Abstract\Factory.cs" />
     <Compile Include="Abstract\Meeting.cs" />
